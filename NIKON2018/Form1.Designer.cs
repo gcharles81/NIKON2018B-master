@@ -54,8 +54,13 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.timer2 = new System.Windows.Forms.Timer(this.components);
+            this.label9 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
             this.button5 = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // serialPort1
@@ -64,27 +69,29 @@
             this.serialPort1.PortName = "COM7";
             this.serialPort1.RtsEnable = true;
             this.serialPort1.StopBits = System.IO.Ports.StopBits.Two;
+            this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort1_DataReceived);
             // 
             // timer1
             // 
             this.timer1.Enabled = true;
-            this.timer1.Interval = 50;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // button3
             // 
+            this.button3.BackColor = System.Drawing.Color.Olive;
             this.button3.Location = new System.Drawing.Point(31, 229);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(75, 76);
             this.button3.TabIndex = 30;
             this.button3.Text = "EXPORT";
-            this.button3.UseVisualStyleBackColor = true;
+            this.button3.UseVisualStyleBackColor = false;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // Xval_label
             // 
             this.Xval_label.AutoSize = true;
             this.Xval_label.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Xval_label.ForeColor = System.Drawing.Color.DarkGreen;
+            this.Xval_label.ForeColor = System.Drawing.Color.Black;
             this.Xval_label.Location = new System.Drawing.Point(35, 514);
             this.Xval_label.Name = "Xval_label";
             this.Xval_label.Size = new System.Drawing.Size(55, 18);
@@ -95,7 +102,7 @@
             // 
             this.Yval_label.AutoSize = true;
             this.Yval_label.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Yval_label.ForeColor = System.Drawing.Color.DarkGreen;
+            this.Yval_label.ForeColor = System.Drawing.Color.Black;
             this.Yval_label.Location = new System.Drawing.Point(195, 514);
             this.Yval_label.Name = "Yval_label";
             this.Yval_label.Size = new System.Drawing.Size(54, 18);
@@ -106,7 +113,7 @@
             // 
             this.Yvalue_label.AutoSize = true;
             this.Yvalue_label.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Yvalue_label.ForeColor = System.Drawing.Color.Blue;
+            this.Yvalue_label.ForeColor = System.Drawing.Color.White;
             this.Yvalue_label.Location = new System.Drawing.Point(191, 532);
             this.Yvalue_label.Name = "Yvalue_label";
             this.Yvalue_label.Size = new System.Drawing.Size(70, 25);
@@ -117,8 +124,8 @@
             // 
             this.Xvalue_label.AutoSize = true;
             this.Xvalue_label.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Xvalue_label.ForeColor = System.Drawing.Color.Blue;
-            this.Xvalue_label.Location = new System.Drawing.Point(19, 532);
+            this.Xvalue_label.ForeColor = System.Drawing.Color.White;
+            this.Xvalue_label.Location = new System.Drawing.Point(26, 532);
             this.Xvalue_label.Name = "Xvalue_label";
             this.Xvalue_label.Size = new System.Drawing.Size(70, 25);
             this.Xvalue_label.TabIndex = 24;
@@ -126,12 +133,13 @@
             // 
             // RESET_button
             // 
+            this.RESET_button.BackColor = System.Drawing.Color.Olive;
             this.RESET_button.Location = new System.Drawing.Point(31, 127);
             this.RESET_button.Name = "RESET_button";
             this.RESET_button.Size = new System.Drawing.Size(75, 76);
             this.RESET_button.TabIndex = 23;
             this.RESET_button.Text = "RESET";
-            this.RESET_button.UseVisualStyleBackColor = true;
+            this.RESET_button.UseVisualStyleBackColor = false;
             this.RESET_button.Click += new System.EventHandler(this.RESET_button_Click);
             // 
             // button2
@@ -206,10 +214,11 @@
             "2",
             "3",
             "4"});
-            this.ComboBox_Rows.Location = new System.Drawing.Point(619, 20);
+            this.ComboBox_Rows.Location = new System.Drawing.Point(64, 13);
             this.ComboBox_Rows.Name = "ComboBox_Rows";
             this.ComboBox_Rows.Size = new System.Drawing.Size(121, 21);
             this.ComboBox_Rows.TabIndex = 31;
+            this.ComboBox_Rows.SelectionChangeCommitted += new System.EventHandler(this.ComboBox_Rows_SelectionChangeCommitted);
             // 
             // ComboBox_Columns
             // 
@@ -245,15 +254,16 @@
             "28",
             "29",
             "30"});
-            this.ComboBox_Columns.Location = new System.Drawing.Point(619, 47);
+            this.ComboBox_Columns.Location = new System.Drawing.Point(64, 40);
             this.ComboBox_Columns.Name = "ComboBox_Columns";
             this.ComboBox_Columns.Size = new System.Drawing.Size(121, 21);
             this.ComboBox_Columns.TabIndex = 32;
+            this.ComboBox_Columns.SelectionChangeCommitted += new System.EventHandler(this.ComboBox_Columns_SelectionChangeCommitted);
             // 
             // label_Rows
             // 
             this.label_Rows.AutoSize = true;
-            this.label_Rows.Location = new System.Drawing.Point(563, 26);
+            this.label_Rows.Location = new System.Drawing.Point(8, 19);
             this.label_Rows.Name = "label_Rows";
             this.label_Rows.Size = new System.Drawing.Size(34, 13);
             this.label_Rows.TabIndex = 33;
@@ -262,7 +272,7 @@
             // label_Columns
             // 
             this.label_Columns.AutoSize = true;
-            this.label_Columns.Location = new System.Drawing.Point(563, 50);
+            this.label_Columns.Location = new System.Drawing.Point(8, 43);
             this.label_Columns.Name = "label_Columns";
             this.label_Columns.Size = new System.Drawing.Size(47, 13);
             this.label_Columns.TabIndex = 34;
@@ -272,8 +282,8 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.ForeColor = System.Drawing.Color.DarkGreen;
-            this.label1.Location = new System.Drawing.Point(587, 132);
+            this.label1.ForeColor = System.Drawing.Color.Red;
+            this.label1.Location = new System.Drawing.Point(587, 242);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(98, 18);
             this.label1.TabIndex = 36;
@@ -283,8 +293,8 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.ForeColor = System.Drawing.Color.Blue;
-            this.label4.Location = new System.Drawing.Point(583, 150);
+            this.label4.ForeColor = System.Drawing.Color.Red;
+            this.label4.Location = new System.Drawing.Point(583, 260);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(24, 25);
             this.label4.TabIndex = 35;
@@ -292,20 +302,21 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(566, 320);
+            this.button4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
+            this.button4.Location = new System.Drawing.Point(577, 514);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(174, 41);
             this.button4.TabIndex = 37;
-            this.button4.Text = "INDEX NEXT";
-            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Text = "Simulate INDEX NEXT";
+            this.button4.UseVisualStyleBackColor = false;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // label5
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.ForeColor = System.Drawing.Color.DarkGreen;
-            this.label5.Location = new System.Drawing.Point(587, 190);
+            this.label5.ForeColor = System.Drawing.Color.Red;
+            this.label5.Location = new System.Drawing.Point(587, 300);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(103, 18);
             this.label5.TabIndex = 39;
@@ -315,8 +326,8 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.ForeColor = System.Drawing.Color.Blue;
-            this.label6.Location = new System.Drawing.Point(583, 208);
+            this.label6.ForeColor = System.Drawing.Color.Red;
+            this.label6.Location = new System.Drawing.Point(583, 318);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(24, 25);
             this.label6.TabIndex = 38;
@@ -326,48 +337,105 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.ForeColor = System.Drawing.Color.DarkGreen;
-            this.label7.Location = new System.Drawing.Point(587, 243);
+            this.label7.ForeColor = System.Drawing.Color.Red;
+            this.label7.Location = new System.Drawing.Point(587, 353);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(127, 18);
             this.label7.TabIndex = 41;
             this.label7.Text = "Current Column";
+            this.label7.Click += new System.EventHandler(this.label7_Click);
             // 
             // label8
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.ForeColor = System.Drawing.Color.Blue;
-            this.label8.Location = new System.Drawing.Point(583, 261);
+            this.label8.ForeColor = System.Drawing.Color.Red;
+            this.label8.Location = new System.Drawing.Point(583, 371);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(24, 25);
             this.label8.TabIndex = 40;
             this.label8.Text = "0";
             // 
-            // timer2
+            // label9
             // 
-            this.timer2.Enabled = true;
-            this.timer2.Interval = 200;
-            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.ForeColor = System.Drawing.Color.Black;
+            this.label9.Location = new System.Drawing.Point(377, 132);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(101, 18);
+            this.label9.TabIndex = 45;
+            this.label9.Text = "Measurment";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.ForeColor = System.Drawing.Color.White;
+            this.label10.Location = new System.Drawing.Point(373, 150);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(132, 25);
+            this.label10.TabIndex = 44;
+            this.label10.Text = "__________";
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(631, 430);
+            this.button5.Location = new System.Drawing.Point(405, 90);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(75, 23);
-            this.button5.TabIndex = 43;
+            this.button5.TabIndex = 46;
             this.button5.Text = "button5";
             this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.button5.Click += new System.EventHandler(this.button5_Click_1);
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.radioButton2);
+            this.panel1.Controls.Add(this.radioButton1);
+            this.panel1.Controls.Add(this.ComboBox_Rows);
+            this.panel1.Controls.Add(this.ComboBox_Columns);
+            this.panel1.Controls.Add(this.label_Rows);
+            this.panel1.Controls.Add(this.label_Columns);
+            this.panel1.Location = new System.Drawing.Point(573, 12);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(200, 177);
+            this.panel1.TabIndex = 47;
+            // 
+            // radioButton1
+            // 
+            this.radioButton1.AutoSize = true;
+            this.radioButton1.Checked = true;
+            this.radioButton1.Location = new System.Drawing.Point(32, 100);
+            this.radioButton1.Name = "radioButton1";
+            this.radioButton1.Size = new System.Drawing.Size(81, 17);
+            this.radioButton1.TabIndex = 35;
+            this.radioButton1.TabStop = true;
+            this.radioButton1.Text = "Point Marks";
+            this.radioButton1.UseVisualStyleBackColor = true;
+            this.radioButton1.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
+            // 
+            // radioButton2
+            // 
+            this.radioButton2.AutoSize = true;
+            this.radioButton2.Location = new System.Drawing.Point(32, 123);
+            this.radioButton2.Name = "radioButton2";
+            this.radioButton2.Size = new System.Drawing.Size(74, 17);
+            this.radioButton2.TabIndex = 36;
+            this.radioButton2.TabStop = true;
+            this.radioButton2.Text = "Chip Bond";
+            this.radioButton2.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.BackColor = System.Drawing.Color.Green;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.ClientSize = new System.Drawing.Size(785, 575);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.button5);
+            this.Controls.Add(this.label9);
+            this.Controls.Add(this.label10);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.label5);
@@ -375,10 +443,6 @@
             this.Controls.Add(this.button4);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.label_Columns);
-            this.Controls.Add(this.label_Rows);
-            this.Controls.Add(this.ComboBox_Columns);
-            this.Controls.Add(this.ComboBox_Rows);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.Xval_label);
             this.Controls.Add(this.Yval_label);
@@ -393,6 +457,8 @@
             this.Controls.Add(this.button1);
             this.Name = "Form1";
             this.Text = "NIKON2018";
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -425,8 +491,12 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Timer timer2;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.RadioButton radioButton2;
+        private System.Windows.Forms.RadioButton radioButton1;
     }
 }
 

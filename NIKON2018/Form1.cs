@@ -26,18 +26,35 @@ namespace NIKON2018
         int number_of_rows = 1;
         int column_number = 1;
         int row_number = 0;
+        Boolean Debug_without_RS232 = true;//set to true to debug witout microscope connected 
         Boolean Index_changed = false;
         Boolean Measurment_started = false;
+        Boolean DO_Referance = true;
+        Boolean Pointmarks = true; //by default pointmarks radio button is set to checked on startup 
+        Boolean Chipbond = false; //by default chipbond radio button is set to unchecked on startup 
+        int X_VIS_START = 200;
+        int Y_VIS_START = 250;
+        int RECT_VIS_SIZE = 45;
+        int VisualizerX_size = 55;
+        int VisualizerY_size = 250;
 
-
-
-
-
+        int MEASURMENT_SEQUESNCE = 1;
+       String FILE_name = "results.txt";
+        String FILE_LOC = "test_folder\results.txt";
+        String FILE_path;
         public Form1()
         {
             InitializeComponent();
+            string path1 = "c:\\temp";
+            string path2 = "subdir\\default.dat";
+
+            FILE_path = Path.Combine(path1, path2);
 
             FOLDERS(); /// Create folders if not found
+           //ILE_path = Path.Combine(FILE_LOC, FILE_name);
+
+        //  String directoryPath = Path.GetDirectoryName(FILE_path,File_name);
+       //     FILE_path = Path.Combine(directoryPath, FILE_name);
 
             //Populate the Combobox with SerialPorts on the System
             ComboBox_Available_SerialPorts.Items.AddRange(SerialPort.GetPortNames());
@@ -48,7 +65,22 @@ namespace NIKON2018
             COMport.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
 
         }
+        public void Create_file()
+        {
 
+
+           if (System.IO.File.Exists(FILE_path))
+            {
+                System.IO.File.Delete(FILE_path);
+            }
+
+            System.IO.StreamWriter file2 = new System.IO.StreamWriter(FILE_path, true);
+
+            file2.Write("NIKON 2018 FILE CREATED ON - ");
+            file2.WriteLine("Date_Time_Processed" + ",");
+
+            file2.Close();
+        }
         public void FOLDERS()
         {
 
@@ -109,6 +141,10 @@ namespace NIKON2018
 
 
                 sRecv = COMport.ReadExisting();
+
+                Index_changed = true;
+              
+
                 Have_message = true;
                 //   label1.Text = sRecv.ToString();
             }
@@ -121,37 +157,51 @@ namespace NIKON2018
         {
             if (Have_message)
             {
+               
+
                 string phrase = sRecv.ToString();
-
-
-
+                
                 string[] words = phrase.Split(',');
-
-
-
-                String X = words[0].ToString();
+                
+                String  X = words[0].ToString();
                 String Y = words[1].ToString();
-
-
-
+                
                 Xvalue_label.Text = X;
                 Yvalue_label.Text = Y;
 
+                float floatValueX = float.Parse(X);
+                float floatValueY = float.Parse(Y);
 
+
+                Index_Register(floatValueX, floatValueY);
+
+
+                if (Debug_without_RS232 == false)
+                {
+                    REPLY_TO_NIKON();//lets reply SXY
+                }
+             
+
+
+
+
+             
 
                 Have_message = false;
-                Send_CMD_SXY();//lets reply SXY
-
+                Index_changed = true;
             }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //Local Variables
-            string Port_Name = ComboBox_Available_SerialPorts.SelectedItem.ToString();    // Store the selected COM port name to "Port_Name" varaiable
-            int Baud_Rate = Convert.ToInt32(ComboBox_Standard_Baudrates.SelectedItem); // Convert the string "9600" to int32 9600
-                                                                                       //Store the string in Textbox to variable "Data"
+            //Local Variables 
 
+            //uncomment below to have selection 
+         //   string Port_Name = ComboBox_Available_SerialPorts.SelectedItem.ToString();    // Store the selected COM port name to "Port_Name" varaiable
+        //    int Baud_Rate = Convert.ToInt32(ComboBox_Standard_Baudrates.SelectedItem); // Convert the string "9600" to int32 9600
+                                                                                       //Store the string in Textbox to variable "Data"
+            string Port_Name = "COM7";
+            int Baud_Rate = 4800;
             //SerialPort COMport = new SerialPort(Port_Name, Baud_Rate, Parity.None, 8, StopBits.Two); //Create a new  SerialPort Object (defaullt setting -> 8N1)
             COMport.Encoding = Encoding.ASCII;
             COMport.PortName = Port_Name;
@@ -205,12 +255,14 @@ namespace NIKON2018
 
         private void RESET_button_Click(object sender, EventArgs e)
         {
-            Send_CMD_SXY();
+            Create_file();
+            REPLY_TO_NIKON();
+            RESET_position_number();
         }
 
-        private void Send_CMD_SXY()
+        private void REPLY_TO_NIKON()
         {
-            RESET_position_number();
+           //RESET_position_number();
 
             if (COMport.IsOpen == true)
             {
@@ -236,44 +288,48 @@ namespace NIKON2018
         {
             Selected_Port_Baudrate = ComboBox_Available_SerialPorts.SelectedItem.ToString() + " Selected"; // Store the Selected COM port
 
-                          
+
 
             ComboBox_Standard_Baudrates.Enabled = true;       // Enable Baudrate Selection after COM port is Selected
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void button4_Click(object sender, EventArgs e)//Only used for debugging 
         {
-            INC_position_number();
+
+            if (Debug_without_RS232)
+            {
+                sRecv = "0.2003,0.1019";
+
+
+                //  INC_position_number();
+                Index_changed = true;
+                Have_message = true;
+            }
         }
 
-        public void INC_position_number()
-        {
-            /*
-            position_number++;
 
-            label4.Text = position_number.ToString();
-            */
-            Index_changed = true;    
-
-    }
 
         public void RESET_position_number()
-        { 
+        {
             position_number = 0;
             column_number = 1;
             row_number = 0;
-
+           
             label4.Text = position_number.ToString();
             label6.Text = row_number.ToString();
             label8.Text = column_number.ToString();
             Index_changed = true;
             Measurment_started = true;
+            update_labels(0,0,false);
+            Update_map();
         }
 
-        public void Index_Register()
+
+
+        public void Index_Register(float x , float y)
         {
-            
-            if (Index_changed)
+
+            if (Index_changed && DO_Referance == false)
             {
                 int temp = position_number;
 
@@ -282,15 +338,15 @@ namespace NIKON2018
                 label4.Text = position_number.ToString();
 
 
-                if (row_number < ComboBox_Rows.SelectedIndex +2)
+                if (row_number < ComboBox_Rows.SelectedIndex + 2)
                 {
-                    
+
                     row_number++;
-                   // label6.Text = row_number.ToString();
+                    // label6.Text = row_number.ToString();
                     // column_number = column_number;
                 }
 
-                if (row_number <= ComboBox_Rows.SelectedIndex + 1 )
+                if (row_number <= ComboBox_Rows.SelectedIndex + 1)
                 {
                     label6.Text = row_number.ToString();
                 }
@@ -298,47 +354,69 @@ namespace NIKON2018
                 if (row_number == ComboBox_Rows.SelectedIndex + 2 && column_number < ComboBox_Columns.SelectedIndex + 1)
                 {
 
-                    row_number = 1;
+                    row_number = 0;
                     label6.Text = row_number.ToString();
                     column_number++;
+                  //  row_number = 0;
                     label8.Text = column_number.ToString();
                     // label6.Text = row_number.ToString();
                     // column_number = column_number;
+                    DO_Referance = true;
+                    MEASURMENT_SEQUESNCE = 1;
+
                 }
                 else if (row_number == ComboBox_Rows.SelectedIndex + 2 && column_number == ComboBox_Columns.SelectedIndex + 1)
                 {
-                    Send_CMD_SXY(); 
+                    REPLY_TO_NIKON();
 
                 }
 
 
-            }
 
+            }
+           
             else
             {
-                //nothing 
+
+
+            }
+        
+/*
+            if (Index_changed && Measurment_started && DO_Referance ==false)
+            {
+
+                update_labels();
+                Update_map();
+                
+
             }
 
+           else if (Index_changed && DO_Referance)
+            {
+
+                update_labels();
+                Update_map();
+
+
+            }
+
+    */
+            update_labels(x,y,true);
+           
             Update_map();
             Index_changed = false;
         }
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            Index_Register();
+            
         }
 
 
  
         private void button5_Click(object sender, EventArgs e)
         {
-            MY_PAD1_DRAW(200, 200,45,45, System.Drawing.Color.Red);
-            MY_PAD1_DRAW(200, 250, 45, 45, System.Drawing.Color.Red);
-            MY_PAD1_DRAW(200, 300, 45, 45, System.Drawing.Color.Red);
-            MY_PAD1_DRAW(200, 350, 45, 45, System.Drawing.Color.Red);
 
-
-            MY_PAD1_FILL(200, 250, 45, 45, System.Drawing.Color.Red);
         }
 
 
@@ -348,60 +426,556 @@ namespace NIKON2018
 
             graphicsObj = this.CreateGraphics();
             Rectangle window = new Rectangle(X, Y, width, height);
-            Pen myPen = new Pen(colors, 3);
+            Pen myPen = new Pen(colors, 2);
 
             graphicsObj.DrawRectangle(myPen, window);
 
         }
+
+
 
         private void MY_PAD1_FILL(int X, int Y, int width, int height, Color colors)
         {
             System.Drawing.Graphics graphicsObj;
 
             graphicsObj = this.CreateGraphics();
-            Rectangle window = new Rectangle(X, Y, width, height);
+            Rectangle window = new Rectangle(X+2, Y+2, width-4, height-4);
+            int XTE = (width - 4 )/ 2;
+            int YTE = (height - 4) / 2;
+            // Rectangle window2 = new Rectangle(((X + 2 + (width - 4 / 2))), ((Y + 2 + (height - 4 / 2))), 3, 3);
+            Rectangle window2 = new Rectangle(((X + 2 + XTE)), ((Y + 2 + YTE)), 3, 3);
             Pen myPen = new Pen(colors, 3);
             
+            graphicsObj.FillRectangle(Brushes.Yellow, window);
+            graphicsObj.FillRectangle(Brushes.Black, window2);
+            //   graphicsObj.DrawRectangle(myPen, window);
+
+        }
+
+        private void MY_REF_CRCL_FILL(int X, int Y, int width, int height,Boolean State)
+        {
+            if (State)
+            {
+                Graphics myGraphics = base.CreateGraphics();
+                myGraphics.FillEllipse(Brushes.Black, X, Y, 40,40);
+            }
+
+            else
+            {
+                Graphics myGraphics = base.CreateGraphics();
+                myGraphics.FillEllipse(Brushes.GreenYellow, X, Y, 40, 40);
+            }
+        }
+
+
+        private void MY_REF_POINT_FILL(int X, int Y, int width, int height, Boolean State)
+        {
+            if (State)
+            {
+                Graphics myGraphics = base.CreateGraphics();
+                myGraphics.FillEllipse(Brushes.Yellow, X, Y, 9, 9);
+            }
+
+            else
+            {
+                Graphics myGraphics = base.CreateGraphics();
+                myGraphics.FillEllipse(Brushes.GreenYellow, X, Y, 9, 9);
+            }
+        }
+        private void MY_PAD1_FILL_2(int X, int Y, int width, int height, Color colors)
+        {
+            System.Drawing.Graphics graphicsObj;
+
+            graphicsObj = this.CreateGraphics();
+            Rectangle window = new Rectangle(X + 2, Y + 2, width - 4, height - 4);
+            Pen myPen = new Pen(colors, 3);
+
+            graphicsObj.FillRectangle(Brushes.Green, window);
+        //    graphicsObj.DrawRectangle(myPen, window);
+
+        }
+        private void timer3_Tick(object sender, EventArgs e)
+        {
+            
+        }
+        private void Reset_Visualizer(int X, int Y, int width, int height, Color colors)
+        {
+
+            System.Drawing.Graphics graphicsObj;
+
+            graphicsObj = this.CreateGraphics();
+            Rectangle window = new Rectangle(X, Y, width, height);
+            Pen myPen = new Pen(colors, 3);
+
             graphicsObj.FillRectangle(Brushes.Green, window);
             graphicsObj.DrawRectangle(myPen, window);
 
         }
 
-        private void timer3_Tick(object sender, EventArgs e)
+        private void testwrite(float X, float Y, int s)
         {
+            StreamWriter file2 = new System.IO.StreamWriter(FILE_path, true);
+
+            if (s == 1)
+
+            {
+                file2.Write("Dev ");
+                file2.Write(column_number);
+                file2.Write(" , ");
+                file2.Write("Ref1_X");
+                file2.Write(" , ");
+                file2.Write(X);
+                file2.Write(" , ");
+                file2.Write("Ref1_Y");
+                file2.Write(" , ");
+                file2.WriteLine(Y);
+                file2.Close();
+            }
+
+            if (s == 2)
+            {
+                file2.Write("Dev ");
+                file2.Write(column_number);
+                file2.Write(" , ");
+                file2.Write("Ref2_X");
+                file2.Write(" , ");
+                file2.Write(X);
+                file2.Write(" , ");
+                file2.Write("Ref2_Y");
+                file2.Write(" , ");
+                file2.WriteLine(Y);
+                file2.Close();
+            }
+            if (s == 3)
+            {
+                file2.Write("Dev ");
+                file2.Write(column_number);
+                file2.Write(" , ");
+                file2.Write("Ref3_X");
+                file2.Write(" , ");
+                file2.Write(X);
+                file2.Write(" , ");
+                file2.Write("Ref3_Y");
+                file2.Write(" , ");
+                file2.WriteLine(Y);
+                file2.Close();
+            }
+
+            if (s == 4)
+            {
+                file2.Write("Dev ");
+                file2.Write(column_number);
+                file2.Write(" , ");
+                file2.Write("Pt1_A_X");
+                file2.Write(" , ");
+                file2.Write(X);
+                file2.Write(" , ");
+                file2.Write("Pt1_A_Y");
+                file2.Write(" , ");
+                file2.WriteLine(Y);
+                file2.Close();
+            }
+            if (s == 5)
+            {
+                file2.Write("Dev ");
+                file2.Write(column_number);
+                file2.Write(" , ");
+                file2.Write("Pt2_A_X");
+                file2.Write(" , ");
+                file2.Write(X);
+                file2.Write(" , ");
+                file2.Write("Pt2_A_Y");
+                file2.Write(" , ");
+                file2.WriteLine(Y);
+                file2.Close();
+            }
+            if (s == 6)
+            {
+                file2.Write("Dev ");
+                file2.Write(column_number);
+                file2.Write(" , ");
+                file2.Write("Pt3_A_X");
+                file2.Write(" , ");
+                file2.Write(X);
+                file2.Write(" , ");
+                file2.Write("Pt3_A_Y");
+                file2.Write(" , ");
+                file2.WriteLine(Y);
+                file2.Close();
+            }
+            if (s == 7)
+            {
+                file2.Write("Dev ");
+                file2.Write(column_number);
+                file2.Write(" , ");
+                file2.Write("Pt4_A_X");
+                file2.Write(" , ");
+                file2.Write(X);
+                file2.Write(" , ");
+                file2.Write("Pt4_A_Y");
+                file2.Write(" , ");
+                file2.WriteLine(Y);
+                file2.Close();
+            }
+        }
+    
+
+      
+        private void update_labels(float x ,float y,Boolean reset)
+        {
+            
+
+            if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 1 && reset == true))
+            {
+                // MY_REF_POINT_FILL(X_VIS_START + 2, Y_VIS_START - 55, 5, 5, true);
+
+                //  label10.Text = MEASURMENT_SEQUESNCE.ToString();
+                label10.Text = "Referance Point 1";
+                testwrite(x, y, MEASURMENT_SEQUESNCE);
+
+
+               MEASURMENT_SEQUESNCE++;
+                return;
+            }
+
+            if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 2))
+            {
+                // MY_REF_POINT_FILL(X_VIS_START + 2 +30, Y_VIS_START - 55 +10, 5, 5, true);
+                // label10.Text = MEASURMENT_SEQUESNCE.ToString();
+                label10.Text = "Referance Point 2";
+                testwrite(x, y, MEASURMENT_SEQUESNCE);
+                MEASURMENT_SEQUESNCE++;
+                return;
+            }
+
+            if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 3))
+            {
+                // MY_REF_POINT_FILL(260, 230, 5, 5, true);
+                // label10.Text = MEASURMENT_SEQUESNCE.ToString();
+                label10.Text = "Referance Point 3";
+                testwrite(x, y, MEASURMENT_SEQUESNCE);
+                MEASURMENT_SEQUESNCE++;
+                DO_Referance = false;
+                return;
+            }
+
+
+
+            if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 4 && number_of_rows >= 1  ))
+            {
+                label10.Text = "Point Mark 1";
+                testwrite(x, y, MEASURMENT_SEQUESNCE);
+                MEASURMENT_SEQUESNCE++;
+                return;
+            }
+
+
+            if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 5 && number_of_rows >= 2))
+            {
+                label10.Text = "Point Mark 2";
+                testwrite(x, y, MEASURMENT_SEQUESNCE);
+                MEASURMENT_SEQUESNCE++;
+                return;
+            }
+
+
+            if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 6 && number_of_rows >=3))
+            {
+                label10.Text = "Point Mark 3";
+                testwrite(x, y, MEASURMENT_SEQUESNCE);
+                MEASURMENT_SEQUESNCE++;
+                return;
+            }
+
+
+
+            if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 7 && number_of_rows==4))
+            {
+                label10.Text = "Point Mark 4";
+                testwrite(x, y, MEASURMENT_SEQUESNCE);
+                // MEASURMENT_SEQUESNCE++;
+                return;
+            }
+
+            if (MEASURMENT_SEQUESNCE == (number_of_rows +3))
+            {
+                MEASURMENT_SEQUESNCE = 1;
+                return;
+            }
+                
+
+        }
+        private void Update_map()
+        {
+
+
+            if (Pointmarks)
+            {
+
+                Reset_Visualizer(X_VIS_START - 5, Y_VIS_START - 55, VisualizerX_size, VisualizerY_size, Color.Green);
+
+                if (MEASURMENT_SEQUESNCE <= 3)
+                {
+                    MY_REF_CRCL_FILL(X_VIS_START + 2, Y_VIS_START - 55, 30, 30, true);
+                }
+
+                else if (MEASURMENT_SEQUESNCE >= 4)
+                {
+                    MY_REF_CRCL_FILL(X_VIS_START + 2, Y_VIS_START - 55, 30, 30, false); ///true set Black  77 false set YELLOW
+                }
+
+
+                if (number_of_rows == 1)
+                {
+                    if (row_number == 1)
+                    {
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        //  label10.Text = "Point Mark 1";
+                    }
+
+
+
+                }
+
+
+                if (number_of_rows == 2)
+                {
+                    if (row_number == 1)
+                    {
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        //    label10.Text = "Point Mark 1";
+
+                    }
+
+                    if (row_number == 2)
+                    {
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        //     label10.Text = "Point Mark 2";
+                    }
+
+
+                }
+
+                if (number_of_rows == 3)
+                {
+
+                    if (row_number == 1)
+                    {
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        //   label10.Text = "Point Mark 1";
+                    }
+
+                    if (row_number == 2)
+                    {
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        // label10.Text = "Point Mark 2";
+                    }
+
+                    if (row_number == 3)
+                    {
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        //   label10.Text = "Point Mark 3";
+                    }
+
+                }
+
+                if (number_of_rows == 4)
+                {
+                    if (row_number == 1)
+                    {
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        //        label10.Text = "Point Mark 1";
+                    }
+
+                    if (row_number == 2)
+                    {
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        //      label10.Text = "Point Mark 2";
+                    }
+
+                    if (row_number == 3)
+                    {
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        //    label10.Text = "Point Mark 3";
+                    }
+
+                    if (row_number == 4)
+                    {
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        //    label10.Text = "Point Mark 4";
+                    }
+
+                }
+            }
+
+
+else if (Chipbond)
+            {
+
+                MessageBox.Show("Chipbond");
+            }
+
+
+
+
+        }
+
+
+        
+        private void ComboBox_Rows_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            number_of_rows = int.Parse(ComboBox_Rows.SelectedItem.ToString());
+        }
+
+        private void ComboBox_Columns_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+          number_of_col =  int.Parse(ComboBox_Columns.SelectedItem.ToString());
+        }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button5_Click_1(object sender, EventArgs e)
+        {
+            Create_file();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+
+
+            if (System.IO.File.Exists(FILE_path))
+            {
+                System.IO.StreamWriter file2 = new System.IO.StreamWriter(FILE_path, true);
+                file2.Close();
+            }
+
             
         }
 
-        private void Update_map()
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
-            if (Measurment_started )
+            if (Pointmarks == true & Chipbond == false)
             {
-                MY_PAD1_DRAW(200, 200, 45, 45, System.Drawing.Color.Red);
-                MY_PAD1_DRAW(200, 250, 45, 45, System.Drawing.Color.Red);
-                MY_PAD1_DRAW(200, 300, 45, 45, System.Drawing.Color.Red);
-                MY_PAD1_DRAW(200, 350, 45, 45, System.Drawing.Color.Red);
-
-
-                if (row_number == 1 && number_of_rows >= 1)
-                {
-                    MY_PAD1_FILL(200, 200, 45, 45, System.Drawing.Color.Red);
-                }
-
-                if (row_number == 2 && number_of_rows >= 2)
-                {
-                    MY_PAD1_FILL(200, 250, 45, 45, System.Drawing.Color.Red);
-                }
-
-                if (row_number == 3 && number_of_rows >= 4)
-                {
-                    MY_PAD1_FILL(200, 300, 45, 45, System.Drawing.Color.Red);
-                }
-
-                if (row_number == 4 && number_of_rows == 4)
-                {
-                    MY_PAD1_FILL(200, 350, 45, 45, System.Drawing.Color.Red);
-                }
+                Pointmarks = false;
+                Chipbond = true;
             }
+
+          else  if (Pointmarks ==false & Chipbond == true)
+            {
+                Pointmarks = true;
+                Chipbond =false;
+            }
+        }
+
+        private void serialPort1_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+
         }
     }
 }
