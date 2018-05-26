@@ -60,7 +60,10 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.label11 = new System.Windows.Forms.Label();
+            this.panel2 = new System.Windows.Forms.Panel();
             this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // serialPort1
@@ -144,7 +147,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(356, 60);
+            this.button2.Location = new System.Drawing.Point(96, 60);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 22;
@@ -198,7 +201,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(58, 60);
+            this.button1.Location = new System.Drawing.Point(15, 60);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 17;
@@ -214,9 +217,9 @@
             "2",
             "3",
             "4"});
-            this.ComboBox_Rows.Location = new System.Drawing.Point(64, 13);
+            this.ComboBox_Rows.Location = new System.Drawing.Point(139, 13);
             this.ComboBox_Rows.Name = "ComboBox_Rows";
-            this.ComboBox_Rows.Size = new System.Drawing.Size(121, 21);
+            this.ComboBox_Rows.Size = new System.Drawing.Size(58, 21);
             this.ComboBox_Rows.TabIndex = 31;
             this.ComboBox_Rows.SelectionChangeCommitted += new System.EventHandler(this.ComboBox_Rows_SelectionChangeCommitted);
             // 
@@ -254,29 +257,31 @@
             "28",
             "29",
             "30"});
-            this.ComboBox_Columns.Location = new System.Drawing.Point(64, 40);
+            this.ComboBox_Columns.Location = new System.Drawing.Point(137, 40);
             this.ComboBox_Columns.Name = "ComboBox_Columns";
-            this.ComboBox_Columns.Size = new System.Drawing.Size(121, 21);
+            this.ComboBox_Columns.Size = new System.Drawing.Size(60, 21);
             this.ComboBox_Columns.TabIndex = 32;
             this.ComboBox_Columns.SelectionChangeCommitted += new System.EventHandler(this.ComboBox_Columns_SelectionChangeCommitted);
             // 
             // label_Rows
             // 
             this.label_Rows.AutoSize = true;
+            this.label_Rows.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label_Rows.Location = new System.Drawing.Point(8, 19);
             this.label_Rows.Name = "label_Rows";
-            this.label_Rows.Size = new System.Drawing.Size(34, 13);
+            this.label_Rows.Size = new System.Drawing.Size(101, 20);
             this.label_Rows.TabIndex = 33;
-            this.label_Rows.Text = "Rows";
+            this.label_Rows.Text = "No of Rows";
             // 
             // label_Columns
             // 
             this.label_Columns.AutoSize = true;
+            this.label_Columns.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label_Columns.Location = new System.Drawing.Point(8, 43);
             this.label_Columns.Name = "label_Columns";
-            this.label_Columns.Size = new System.Drawing.Size(47, 13);
+            this.label_Columns.Size = new System.Drawing.Size(126, 20);
             this.label_Columns.TabIndex = 34;
-            this.label_Columns.Text = "Columns";
+            this.label_Columns.Text = "No of Columns";
             // 
             // label1
             // 
@@ -380,7 +385,7 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(405, 90);
+            this.button5.Location = new System.Drawing.Point(608, 457);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(75, 23);
             this.button5.TabIndex = 46;
@@ -390,22 +395,20 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.radioButton2);
-            this.panel1.Controls.Add(this.radioButton1);
             this.panel1.Controls.Add(this.ComboBox_Rows);
             this.panel1.Controls.Add(this.ComboBox_Columns);
             this.panel1.Controls.Add(this.label_Rows);
             this.panel1.Controls.Add(this.label_Columns);
             this.panel1.Location = new System.Drawing.Point(573, 12);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(200, 177);
+            this.panel1.Size = new System.Drawing.Size(200, 82);
             this.panel1.TabIndex = 47;
             // 
             // radioButton1
             // 
             this.radioButton1.AutoSize = true;
             this.radioButton1.Checked = true;
-            this.radioButton1.Location = new System.Drawing.Point(32, 100);
+            this.radioButton1.Location = new System.Drawing.Point(35, 61);
             this.radioButton1.Name = "radioButton1";
             this.radioButton1.Size = new System.Drawing.Size(81, 17);
             this.radioButton1.TabIndex = 35;
@@ -417,13 +420,32 @@
             // radioButton2
             // 
             this.radioButton2.AutoSize = true;
-            this.radioButton2.Location = new System.Drawing.Point(32, 123);
+            this.radioButton2.Location = new System.Drawing.Point(35, 38);
             this.radioButton2.Name = "radioButton2";
             this.radioButton2.Size = new System.Drawing.Size(74, 17);
             this.radioButton2.TabIndex = 36;
-            this.radioButton2.TabStop = true;
             this.radioButton2.Text = "Chip Bond";
             this.radioButton2.UseVisualStyleBackColor = true;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.Location = new System.Drawing.Point(27, 2);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(151, 20);
+            this.label11.TabIndex = 37;
+            this.label11.Text = "Measurment Type";
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.label11);
+            this.panel2.Controls.Add(this.radioButton1);
+            this.panel2.Controls.Add(this.radioButton2);
+            this.panel2.Location = new System.Drawing.Point(573, 112);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(200, 91);
+            this.panel2.TabIndex = 48;
             // 
             // Form1
             // 
@@ -432,6 +454,7 @@
             this.BackColor = System.Drawing.Color.Green;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.ClientSize = new System.Drawing.Size(785, 575);
+            this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.label9);
@@ -459,6 +482,8 @@
             this.Text = "NIKON2018";
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -497,6 +522,8 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.RadioButton radioButton1;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Panel panel2;
     }
 }
 

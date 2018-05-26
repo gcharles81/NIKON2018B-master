@@ -39,9 +39,14 @@ namespace NIKON2018
         int VisualizerY_size = 250;
 
         int MEASURMENT_SEQUESNCE = 1;
-       String FILE_name = "results.txt";
+
+        String FILE_name = "results.txt";
         String FILE_LOC = "test_folder\results.txt";
         String FILE_path;
+
+
+
+
         public Form1()
         {
             InitializeComponent();
@@ -51,10 +56,7 @@ namespace NIKON2018
             FILE_path = Path.Combine(path1, path2);
 
             FOLDERS(); /// Create folders if not found
-           //ILE_path = Path.Combine(FILE_LOC, FILE_name);
 
-        //  String directoryPath = Path.GetDirectoryName(FILE_path,File_name);
-       //     FILE_path = Path.Combine(directoryPath, FILE_name);
 
             //Populate the Combobox with SerialPorts on the System
             ComboBox_Available_SerialPorts.Items.AddRange(SerialPort.GetPortNames());
@@ -380,30 +382,31 @@ namespace NIKON2018
 
 
             }
-        
-/*
-            if (Index_changed && Measurment_started && DO_Referance ==false)
-            {
 
-                update_labels();
-                Update_map();
-                
+            /*
+                        if (Index_changed && Measurment_started && DO_Referance ==false)
+                        {
 
-            }
-
-           else if (Index_changed && DO_Referance)
-            {
-
-                update_labels();
-                Update_map();
+                            update_labels();
+                            Update_map();
 
 
-            }
+                        }
 
-    */
+                       else if (Index_changed && DO_Referance)
+                        {
+
+                            update_labels();
+                            Update_map();
+
+
+                        }
+
+                */
+            Update_map();
             update_labels(x,y,true);
            
-            Update_map();
+          //  Update_map();
             Index_changed = false;
         }
 
@@ -457,23 +460,88 @@ namespace NIKON2018
             if (State)
             {
                 Graphics myGraphics = base.CreateGraphics();
-                myGraphics.FillEllipse(Brushes.Black, X, Y, 40,40);
+                Pen h = new Pen(Color.Aqua, 2);
+                myGraphics.DrawLine(h, X, Y, X, Y +height);
+                myGraphics.DrawLine(h, X, Y, X + width, Y);
+
+                myGraphics.FillEllipse(Brushes.Black, X, Y, width, height);
+                myGraphics.Dispose();
             }
 
             else
             {
                 Graphics myGraphics = base.CreateGraphics();
-                myGraphics.FillEllipse(Brushes.GreenYellow, X, Y, 40, 40);
+                myGraphics.FillEllipse(Brushes.GreenYellow, X, Y, width, height);
+                myGraphics.Dispose();
             }
         }
 
+        private void Small_circle(int Xstart , int Ystart,Boolean state)
+        {
+
+            if (state)
+            {
+
+
+                Graphics myGraphics = base.CreateGraphics();
+                Pen h = new Pen(Color.Aqua, 2);
+                myGraphics.DrawEllipse(h, Xstart - 3, Ystart - 3, 6, 6);
+                myGraphics.Dispose();
+            }
+
+            else
+            {
+                Graphics myGraphics = base.CreateGraphics();
+                Pen h = new Pen(Color.Blue, 2);
+                myGraphics.DrawEllipse(h, Xstart - 3, Ystart - 3, 6, 6);
+                myGraphics.Dispose();
+            }
+        }
 
         private void MY_REF_POINT_FILL(int X, int Y, int width, int height, Boolean State)
         {
             if (State)
             {
-                Graphics myGraphics = base.CreateGraphics();
-                myGraphics.FillEllipse(Brushes.Yellow, X, Y, 9, 9);
+                int STARTXofref = X;
+                int STARTYofref =Y;
+                int refwidth = width;
+                int refheight = height;
+                double radius = (refwidth / 2);
+                int my_calculatedstart_Xref1 = ((STARTXofref + refwidth) - (refwidth/2));
+                int my_calculatedstart_Yref1 = ((STARTYofref + refheight) - (refheight/2));
+
+                double XX = radius * Math.Cos(45.00);
+                double YY = radius * Math.Sin(45.00);
+
+                int testx = (int)XX;
+                int testy = (int)YY;
+
+
+                int x1 = my_calculatedstart_Xref1 + testx;
+                int y1 = my_calculatedstart_Yref1 + testy;
+
+                
+                switch (MEASURMENT_SEQUESNCE)
+                {
+                    case 1:
+                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 + testy,true);
+                        return;
+                    case 2:
+                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 + testy,false);
+                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 - testy,true);
+                        return;
+
+
+                    case 3:
+                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 + testy,false);
+                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 - testy,false);
+                        Small_circle(my_calculatedstart_Xref1 - (int)radius, my_calculatedstart_Yref1,false);
+                        return;
+                    default:
+                        
+                        return;
+                }
+               
             }
 
             else
@@ -709,19 +777,33 @@ namespace NIKON2018
         {
 
 
-            if (Pointmarks)
+            if (Pointmarks && Index_changed)
             {
 
-                Reset_Visualizer(X_VIS_START - 5, Y_VIS_START - 55, VisualizerX_size, VisualizerY_size, Color.Green);
+                Reset_Visualizer(X_VIS_START - 15, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
 
-                if (MEASURMENT_SEQUESNCE <= 3)
+                if (MEASURMENT_SEQUESNCE == 1)
                 {
-                    MY_REF_CRCL_FILL(X_VIS_START + 2, Y_VIS_START - 55, 30, 30, true);
+                    MY_REF_CRCL_FILL(X_VIS_START + 2, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                MY_REF_POINT_FILL(X_VIS_START + 2, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                }
+
+                if (MEASURMENT_SEQUESNCE == 2)
+                {
+                    MY_REF_CRCL_FILL(X_VIS_START + 2, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                    MY_REF_POINT_FILL(X_VIS_START + 2, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                }
+
+                if (MEASURMENT_SEQUESNCE == 3)
+                {
+                    MY_REF_CRCL_FILL(X_VIS_START + 2, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                    MY_REF_POINT_FILL(X_VIS_START + 2, Y_VIS_START -65, 60, 60, true); ///true set Black  77 false set YELLOW
                 }
 
                 else if (MEASURMENT_SEQUESNCE >= 4)
                 {
-                    MY_REF_CRCL_FILL(X_VIS_START + 2, Y_VIS_START - 55, 30, 30, false); ///true set Black  77 false set YELLOW
+                    MY_REF_CRCL_FILL(X_VIS_START + 2, Y_VIS_START - 65, 60, 60, false); ///true set Black  77 false set YELLOW
+                 //   MY_REF_POINT_FILL(X_VIS_START + 2, Y_VIS_START - 55, 40, 40, true); ///true set Black  77 false set YELLOW
                 }
 
 
