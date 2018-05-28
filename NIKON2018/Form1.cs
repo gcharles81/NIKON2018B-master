@@ -34,9 +34,9 @@ namespace NIKON2018
         Boolean Chipbond = false; //by default chipbond radio button is set to unchecked on startup 
         int X_VIS_START = 200;
         int Y_VIS_START = 250;
-        int RECT_VIS_SIZE = 45;
-        int VisualizerX_size = 55;
-        int VisualizerY_size = 250;
+        int RECT_VIS_SIZE = 60;
+        int VisualizerX_size = 65;
+        int VisualizerY_size = 325;
 
         int MEASURMENT_SEQUESNCE = 1;
 
@@ -58,11 +58,7 @@ namespace NIKON2018
             FOLDERS(); /// Create folders if not found
 
 
-            //Populate the Combobox with SerialPorts on the System
-            ComboBox_Available_SerialPorts.Items.AddRange(SerialPort.GetPortNames());
-
-            // Disable Baudrate Selection also
-            ComboBox_Standard_Baudrates.Enabled = false;
+    
 
             COMport.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
 
@@ -71,7 +67,7 @@ namespace NIKON2018
         {
 
 
-           if (System.IO.File.Exists(FILE_path))
+            if (System.IO.File.Exists(FILE_path))
             {
                 System.IO.File.Delete(FILE_path);
             }
@@ -145,7 +141,7 @@ namespace NIKON2018
                 sRecv = COMport.ReadExisting();
 
                 Index_changed = true;
-              
+
 
                 Have_message = true;
                 //   label1.Text = sRecv.ToString();
@@ -159,15 +155,15 @@ namespace NIKON2018
         {
             if (Have_message)
             {
-               
+
 
                 string phrase = sRecv.ToString();
-                
+
                 string[] words = phrase.Split(',');
-                
-                String  X = words[0].ToString();
+
+                String X = words[0].ToString();
                 String Y = words[1].ToString();
-                
+
                 Xvalue_label.Text = X;
                 Yvalue_label.Text = Y;
 
@@ -175,19 +171,20 @@ namespace NIKON2018
                 float floatValueY = float.Parse(Y);
 
 
-                Index_Register(floatValueX, floatValueY);
+                Index_Register2(floatValueX, floatValueY);
+
 
 
                 if (Debug_without_RS232 == false)
                 {
                     REPLY_TO_NIKON();//lets reply SXY
                 }
-             
 
 
 
 
-             
+
+
 
                 Have_message = false;
                 Index_changed = true;
@@ -196,75 +193,92 @@ namespace NIKON2018
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //Local Variables 
 
-            //uncomment below to have selection 
-         //   string Port_Name = ComboBox_Available_SerialPorts.SelectedItem.ToString();    // Store the selected COM port name to "Port_Name" varaiable
-        //    int Baud_Rate = Convert.ToInt32(ComboBox_Standard_Baudrates.SelectedItem); // Convert the string "9600" to int32 9600
-                                                                                       //Store the string in Textbox to variable "Data"
-            string Port_Name = "COM7";
-            int Baud_Rate = 4800;
-            //SerialPort COMport = new SerialPort(Port_Name, Baud_Rate, Parity.None, 8, StopBits.Two); //Create a new  SerialPort Object (defaullt setting -> 8N1)
-            COMport.Encoding = Encoding.ASCII;
-            COMport.PortName = Port_Name;
-            COMport.BaudRate = Baud_Rate;
-            COMport.Parity = Parity.None;
-            COMport.DataBits = 8;
-            COMport.StopBits = StopBits.Two;
-            COMport.DtrEnable = true;
-            COMport.RtsEnable = true;
-
-            try
-            {
-
-                COMport.Open();
-            }
-            #region  
-            catch (UnauthorizedAccessException SerialException) //exception that is thrown when the operating system denies access 
-            {
-                MessageBox.Show(SerialException.ToString());
-
-                COMport.Close();
-            }
-
-            catch (System.IO.IOException SerialException)     // An attempt to set the state of the underlying port failed
-            {
-                MessageBox.Show(SerialException.ToString());
-
-                COMport.Close();
-            }
-
-            catch (InvalidOperationException SerialException) // The specified port on the current instance of the SerialPort is already open
-            {
-                MessageBox.Show(SerialException.ToString());
-
-                COMport.Close();
-            }
-
-            catch //Any other ERROR
-            {
-                MessageBox.Show("ERROR in Opening Serial PORT -- UnKnown ERROR");
-                COMport.Close();
-            }
-            #endregion
-
+           
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void Serial_connect()
+        {
+
+            if (Debug_without_RS232 == false)
+            {
+                //Local Variables 
+
+                //uncomment below to have selection 
+                //   string Port_Name = ComboBox_Available_SerialPorts.SelectedItem.ToString();    // Store the selected COM port name to "Port_Name" varaiable
+                //    int Baud_Rate = Convert.ToInt32(ComboBox_Standard_Baudrates.SelectedItem); // Convert the string "9600" to int32 9600
+                //Store the string in Textbox to variable "Data"
+                string Port_Name = "COM7";
+                int Baud_Rate = 4800;
+                //SerialPort COMport = new SerialPort(Port_Name, Baud_Rate, Parity.None, 8, StopBits.Two); //Create a new  SerialPort Object (defaullt setting -> 8N1)
+                COMport.Encoding = Encoding.ASCII;
+                COMport.PortName = Port_Name;
+                COMport.BaudRate = Baud_Rate;
+                COMport.Parity = Parity.None;
+                COMport.DataBits = 8;
+                COMport.StopBits = StopBits.Two;
+                COMport.DtrEnable = true;
+                COMport.RtsEnable = true;
+
+                try
+                {
+
+                    COMport.Open();
+                }
+                #region  
+                catch (UnauthorizedAccessException SerialException) //exception that is thrown when the operating system denies access 
+                {
+                    MessageBox.Show(SerialException.ToString());
+
+                    COMport.Close();
+                }
+
+                catch (System.IO.IOException SerialException)     // An attempt to set the state of the underlying port failed
+                {
+                    MessageBox.Show(SerialException.ToString());
+
+                    COMport.Close();
+                }
+
+                catch (InvalidOperationException SerialException) // The specified port on the current instance of the SerialPort is already open
+                {
+                    MessageBox.Show(SerialException.ToString());
+
+                    COMport.Close();
+                }
+
+                catch //Any other ERROR
+                {
+                    MessageBox.Show("ERROR in Opening Serial PORT -- UnKnown ERROR");
+                    COMport.Close();
+                }
+                #endregion
+            }
+        }
+            
+            
+            private void button2_Click(object sender, EventArgs e)
         {
             COMport.Close();
         }
 
         private void RESET_button_Click(object sender, EventArgs e)
         {
+            Serial_connect();
             Create_file();
             REPLY_TO_NIKON();
-            RESET_position_number();
+            position_number = 0;
+            column_number = 1;
+            row_number = 0;
+            Measurment_started = true;
+            DO_Referance = true;
+            MEASURMENT_SEQUESNCE = 0;
+            Update_map2(0, 0, false);
         }
 
         private void REPLY_TO_NIKON()
         {
-           //RESET_position_number();
+            //RESET_position_number();
 
             if (COMport.IsOpen == true)
             {
@@ -279,21 +293,10 @@ namespace NIKON2018
             }
         }
 
-        private void ComboBox_Standard_Baudrates_SelectionChangeCommitted(object sender, EventArgs e)
-        {
-            Selected_Port_Baudrate = Selected_Port_Baudrate + Environment.NewLine;
-            Selected_Port_Baudrate = Selected_Port_Baudrate + ComboBox_Standard_Baudrates.SelectedItem.ToString() + " bps selected";
-        }
+      
 
 
-        private void ComboBox_Available_SerialPorts_SelectionChangeCommitted(object sender, EventArgs e)
-        {
-            Selected_Port_Baudrate = ComboBox_Available_SerialPorts.SelectedItem.ToString() + " Selected"; // Store the Selected COM port
-
-
-
-            ComboBox_Standard_Baudrates.Enabled = true;       // Enable Baudrate Selection after COM port is Selected
-        }
+ 
 
         private void button4_Click(object sender, EventArgs e)//Only used for debugging 
         {
@@ -313,117 +316,48 @@ namespace NIKON2018
 
         public void RESET_position_number()
         {
+            /*
             position_number = 0;
             column_number = 1;
             row_number = 0;
-           
+
             label4.Text = position_number.ToString();
             label6.Text = row_number.ToString();
             label8.Text = column_number.ToString();
             Index_changed = true;
             Measurment_started = true;
-            update_labels(0,0,false);
-            Update_map();
+            update_labels2(0, 0, false);
+            Update_map2(0, 0, false);
+            */
+
+            position_number = 0;
+            column_number = 1;
+            row_number = 0;
+            Measurment_started = true;
+            DO_Referance = true;
+            MEASURMENT_SEQUESNCE = 0;
+            //   update_labels2(0, 0, false);
+            Update_map2(0, 0, true);
         }
 
 
 
-        public void Index_Register(float x , float y)
-        {
 
-            if (Index_changed && DO_Referance == false)
-            {
-                int temp = position_number;
-
-                position_number++;
-
-                label4.Text = position_number.ToString();
-
-
-                if (row_number < ComboBox_Rows.SelectedIndex + 2)
-                {
-
-                    row_number++;
-                    // label6.Text = row_number.ToString();
-                    // column_number = column_number;
-                }
-
-                if (row_number <= ComboBox_Rows.SelectedIndex + 1)
-                {
-                    label6.Text = row_number.ToString();
-                }
-
-                if (row_number == ComboBox_Rows.SelectedIndex + 2 && column_number < ComboBox_Columns.SelectedIndex + 1)
-                {
-
-                    row_number = 0;
-                    label6.Text = row_number.ToString();
-                    column_number++;
-                  //  row_number = 0;
-                    label8.Text = column_number.ToString();
-                    // label6.Text = row_number.ToString();
-                    // column_number = column_number;
-                    DO_Referance = true;
-                    MEASURMENT_SEQUESNCE = 1;
-
-                }
-                else if (row_number == ComboBox_Rows.SelectedIndex + 2 && column_number == ComboBox_Columns.SelectedIndex + 1)
-                {
-                    REPLY_TO_NIKON();
-
-                }
-
-
-
-            }
-           
-            else
-            {
-
-
-            }
-
-            /*
-                        if (Index_changed && Measurment_started && DO_Referance ==false)
-                        {
-
-                            update_labels();
-                            Update_map();
-
-
-                        }
-
-                       else if (Index_changed && DO_Referance)
-                        {
-
-                            update_labels();
-                            Update_map();
-
-
-                        }
-
-                */
-            Update_map();
-            update_labels(x,y,true);
-           
-          //  Update_map();
-            Index_changed = false;
-        }
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            
+
         }
 
 
- 
+
         private void button5_Click(object sender, EventArgs e)
         {
 
         }
 
 
-        private void MY_PAD1_DRAW (int X ,int Y , int width , int height , Color colors)
+        private void MY_PAD1_DRAW(int X, int Y, int width, int height, Color colors)
         {
             System.Drawing.Graphics graphicsObj;
 
@@ -432,7 +366,7 @@ namespace NIKON2018
             Pen myPen = new Pen(colors, 2);
 
             graphicsObj.DrawRectangle(myPen, window);
-
+            graphicsObj.Dispose();
         }
 
 
@@ -442,27 +376,28 @@ namespace NIKON2018
             System.Drawing.Graphics graphicsObj;
 
             graphicsObj = this.CreateGraphics();
-            Rectangle window = new Rectangle(X+2, Y+2, width-4, height-4);
-            int XTE = (width - 4 )/ 2;
+            Rectangle window = new Rectangle(X + 2, Y + 2, width - 4, height - 4);
+            int XTE = (width - 4) / 2;
             int YTE = (height - 4) / 2;
-            // Rectangle window2 = new Rectangle(((X + 2 + (width - 4 / 2))), ((Y + 2 + (height - 4 / 2))), 3, 3);
+
             Rectangle window2 = new Rectangle(((X + 2 + XTE)), ((Y + 2 + YTE)), 3, 3);
             Pen myPen = new Pen(colors, 3);
-            
-            graphicsObj.FillRectangle(Brushes.Yellow, window);
+
+            graphicsObj.FillRectangle(Brushes.LawnGreen, window);
             graphicsObj.FillRectangle(Brushes.Black, window2);
-            //   graphicsObj.DrawRectangle(myPen, window);
+
+            graphicsObj.Dispose();
 
         }
 
-        private void MY_REF_CRCL_FILL(int X, int Y, int width, int height,Boolean State)
+        private void MY_REF_CRCL_FILL(int X, int Y, int width, int height, Boolean State)
         {
             if (State)
             {
                 Graphics myGraphics = base.CreateGraphics();
                 Pen h = new Pen(Color.Aqua, 2);
-                myGraphics.DrawLine(h, X, Y, X, Y +height);
-                myGraphics.DrawLine(h, X, Y, X + width, Y);
+                //  myGraphics.DrawLine(h, X, Y, X, Y + height);
+                //   myGraphics.DrawLine(h, X, Y, X + width, Y);
 
                 myGraphics.FillEllipse(Brushes.Black, X, Y, width, height);
                 myGraphics.Dispose();
@@ -476,7 +411,7 @@ namespace NIKON2018
             }
         }
 
-        private void Small_circle(int Xstart , int Ystart,Boolean state)
+        private void Small_circle(int Xstart, int Ystart, Boolean state)
         {
 
             if (state)
@@ -484,16 +419,17 @@ namespace NIKON2018
 
 
                 Graphics myGraphics = base.CreateGraphics();
-                Pen h = new Pen(Color.Aqua, 2);
-                myGraphics.DrawEllipse(h, Xstart - 3, Ystart - 3, 6, 6);
+                // Pen h = new Pen(Color.Aqua, 2);
+                myGraphics.FillEllipse(Brushes.AliceBlue, Xstart - 5, Ystart - 5, 10, 10);
+                // myGraphics.DrawEllipse(h, Xstart - 3, Ystart - 3, 6, 6);
                 myGraphics.Dispose();
             }
 
             else
             {
                 Graphics myGraphics = base.CreateGraphics();
-                Pen h = new Pen(Color.Blue, 2);
-                myGraphics.DrawEllipse(h, Xstart - 3, Ystart - 3, 6, 6);
+
+                myGraphics.FillEllipse(Brushes.Blue, Xstart - 5, Ystart - 5, 10, 10);
                 myGraphics.Dispose();
             }
         }
@@ -503,12 +439,12 @@ namespace NIKON2018
             if (State)
             {
                 int STARTXofref = X;
-                int STARTYofref =Y;
+                int STARTYofref = Y;
                 int refwidth = width;
                 int refheight = height;
                 double radius = (refwidth / 2);
-                int my_calculatedstart_Xref1 = ((STARTXofref + refwidth) - (refwidth/2));
-                int my_calculatedstart_Yref1 = ((STARTYofref + refheight) - (refheight/2));
+                int my_calculatedstart_Xref1 = ((STARTXofref + refwidth) - (refwidth / 2));
+                int my_calculatedstart_Yref1 = ((STARTYofref + refheight) - (refheight / 2));
 
                 double XX = radius * Math.Cos(45.00);
                 double YY = radius * Math.Sin(45.00);
@@ -520,28 +456,30 @@ namespace NIKON2018
                 int x1 = my_calculatedstart_Xref1 + testx;
                 int y1 = my_calculatedstart_Yref1 + testy;
 
-                
+
                 switch (MEASURMENT_SEQUESNCE)
                 {
+                    case 0:
+                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 + testy, true);
+                        return;
                     case 1:
-                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 + testy,true);
+                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 + testy, false);
+                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 - testy, true);
                         return;
+
+
                     case 2:
-                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 + testy,false);
-                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 - testy,true);
-                        return;
-
-
-                    case 3:
-                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 + testy,false);
-                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 - testy,false);
-                        Small_circle(my_calculatedstart_Xref1 - (int)radius, my_calculatedstart_Yref1,false);
+                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 + testy, false);
+                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 - testy, false);
+                        Small_circle(my_calculatedstart_Xref1 - (int)radius, my_calculatedstart_Yref1, true);
                         return;
                     default:
-                        
+                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 + testy, false);
+                        Small_circle(my_calculatedstart_Xref1 + testx, my_calculatedstart_Yref1 - testy, false);
+                        Small_circle(my_calculatedstart_Xref1 - (int)radius, my_calculatedstart_Yref1, false);
                         return;
                 }
-               
+
             }
 
             else
@@ -559,12 +497,12 @@ namespace NIKON2018
             Pen myPen = new Pen(colors, 3);
 
             graphicsObj.FillRectangle(Brushes.Green, window);
-        //    graphicsObj.DrawRectangle(myPen, window);
+            //    graphicsObj.DrawRectangle(myPen, window);
 
         }
         private void timer3_Tick(object sender, EventArgs e)
         {
-            
+
         }
         private void Reset_Visualizer(int X, int Y, int width, int height, Color colors)
         {
@@ -686,346 +624,287 @@ namespace NIKON2018
                 file2.Close();
             }
         }
-    
 
-      
-        private void update_labels(float x ,float y,Boolean reset)
+
+        private void testwrite2(float X, float Y, int s)
         {
-            
+            StreamWriter file2 = new System.IO.StreamWriter(FILE_path, true);
 
-            if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 1 && reset == true))
+            if (Pointmarks)
             {
-                // MY_REF_POINT_FILL(X_VIS_START + 2, Y_VIS_START - 55, 5, 5, true);
-
-                //  label10.Text = MEASURMENT_SEQUESNCE.ToString();
-                label10.Text = "Referance Point 1";
-                testwrite(x, y, MEASURMENT_SEQUESNCE);
-
-
-               MEASURMENT_SEQUESNCE++;
-                return;
-            }
-
-            if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 2))
-            {
-                // MY_REF_POINT_FILL(X_VIS_START + 2 +30, Y_VIS_START - 55 +10, 5, 5, true);
-                // label10.Text = MEASURMENT_SEQUESNCE.ToString();
-                label10.Text = "Referance Point 2";
-                testwrite(x, y, MEASURMENT_SEQUESNCE);
-                MEASURMENT_SEQUESNCE++;
-                return;
-            }
-
-            if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 3))
-            {
-                // MY_REF_POINT_FILL(260, 230, 5, 5, true);
-                // label10.Text = MEASURMENT_SEQUESNCE.ToString();
-                label10.Text = "Referance Point 3";
-                testwrite(x, y, MEASURMENT_SEQUESNCE);
-                MEASURMENT_SEQUESNCE++;
-                DO_Referance = false;
-                return;
-            }
-
-
-
-            if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 4 && number_of_rows >= 1  ))
-            {
-                label10.Text = "Point Mark 1";
-                testwrite(x, y, MEASURMENT_SEQUESNCE);
-                MEASURMENT_SEQUESNCE++;
-                return;
-            }
-
-
-            if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 5 && number_of_rows >= 2))
-            {
-                label10.Text = "Point Mark 2";
-                testwrite(x, y, MEASURMENT_SEQUESNCE);
-                MEASURMENT_SEQUESNCE++;
-                return;
-            }
-
-
-            if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 6 && number_of_rows >=3))
-            {
-                label10.Text = "Point Mark 3";
-                testwrite(x, y, MEASURMENT_SEQUESNCE);
-                MEASURMENT_SEQUESNCE++;
-                return;
-            }
-
-
-
-            if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 7 && number_of_rows==4))
-            {
-                label10.Text = "Point Mark 4";
-                testwrite(x, y, MEASURMENT_SEQUESNCE);
-                // MEASURMENT_SEQUESNCE++;
-                return;
-            }
-
-            if (MEASURMENT_SEQUESNCE == (number_of_rows +3))
-            {
-                MEASURMENT_SEQUESNCE = 1;
-                return;
-            }
-                
-
-        }
-        private void Update_map()
-        {
-
-
-            if (Pointmarks && Index_changed)
-            {
-
-                Reset_Visualizer(X_VIS_START - 15, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
-
-                if (MEASURMENT_SEQUESNCE == 1)
-                {
-                    MY_REF_CRCL_FILL(X_VIS_START + 2, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                MY_REF_POINT_FILL(X_VIS_START + 2, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                }
-
-                if (MEASURMENT_SEQUESNCE == 2)
-                {
-                    MY_REF_CRCL_FILL(X_VIS_START + 2, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                    MY_REF_POINT_FILL(X_VIS_START + 2, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                }
-
-                if (MEASURMENT_SEQUESNCE == 3)
-                {
-                    MY_REF_CRCL_FILL(X_VIS_START + 2, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                    MY_REF_POINT_FILL(X_VIS_START + 2, Y_VIS_START -65, 60, 60, true); ///true set Black  77 false set YELLOW
-                }
-
-                else if (MEASURMENT_SEQUESNCE >= 4)
-                {
-                    MY_REF_CRCL_FILL(X_VIS_START + 2, Y_VIS_START - 65, 60, 60, false); ///true set Black  77 false set YELLOW
-                 //   MY_REF_POINT_FILL(X_VIS_START + 2, Y_VIS_START - 55, 40, 40, true); ///true set Black  77 false set YELLOW
-                }
-
-
-                if (number_of_rows == 1)
-                {
-                    if (row_number == 1)
-                    {
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        //  label10.Text = "Point Mark 1";
-                    }
-
-
-
-                }
-
-
-                if (number_of_rows == 2)
-                {
-                    if (row_number == 1)
-                    {
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        //    label10.Text = "Point Mark 1";
-
-                    }
-
-                    if (row_number == 2)
-                    {
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        //     label10.Text = "Point Mark 2";
-                    }
-
-
-                }
-
-                if (number_of_rows == 3)
+                switch (s)
                 {
 
-                    if (row_number == 1)
-                    {
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                    case 1:
 
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Ref1_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Ref1_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
 
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        //   label10.Text = "Point Mark 1";
-                    }
-
-                    if (row_number == 2)
-                    {
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        // label10.Text = "Point Mark 2";
-                    }
-
-                    if (row_number == 3)
-                    {
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        //   label10.Text = "Point Mark 3";
-                    }
-
+                    case 2:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Ref2_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Ref2_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    case 3:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Ref3_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Ref3_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    case 4:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Pt1_A_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Pt1_A_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    case 5:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Pt2_A_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Pt2_A_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    case 6:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Pt3_A_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Pt3_A_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    case 7:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Pt4_A_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Pt4_A_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    default:
+                        file2.Close();
+                        break;
                 }
 
-                if (number_of_rows == 4)
-                {
-                    if (row_number == 1)
-                    {
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        //        label10.Text = "Point Mark 1";
-                    }
-
-                    if (row_number == 2)
-                    {
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        //      label10.Text = "Point Mark 2";
-                    }
-
-                    if (row_number == 3)
-                    {
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        //    label10.Text = "Point Mark 3";
-                    }
-
-                    if (row_number == 4)
-                    {
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 50, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 100, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 150, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        //    label10.Text = "Point Mark 4";
-                    }
-
-                }
             }
 
-
-else if (Chipbond)
+            else if (Chipbond)
             {
+                switch (s)
+                {
 
-                MessageBox.Show("Chipbond");
+                    case 1:
+
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Ref1_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Ref1_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+
+                    case 2:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Ref2_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Ref2_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    case 3:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Ref3_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Ref3_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    case 4:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Pt1_A_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Pt1_A_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    case 5:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Pt1_B_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Pt1_B_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    case 6:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Pt2_A_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Pt2_A_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    case 7:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Pt2_B_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Pt2_B_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    case 8:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Pt3_A_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Pt3_A_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    case 9:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Pt3_B_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Pt3_B_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    case 10:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Pt4_A_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Pt4_A_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    case 11:
+                        file2.Write("Dev ");
+                        file2.Write(column_number);
+                        file2.Write(" , ");
+                        file2.Write("Pt4_B_X");
+                        file2.Write(" , ");
+                        file2.Write(X);
+                        file2.Write(" , ");
+                        file2.Write("Pt4_B_Y");
+                        file2.Write(" , ");
+                        file2.WriteLine(Y);
+                        file2.Close();
+                        break;
+                    default:
+                        file2.Close();
+                        break;
+                }
             }
-
-
-
 
         }
 
 
-        
+
         private void ComboBox_Rows_SelectionChangeCommitted(object sender, EventArgs e)
         {
             number_of_rows = int.Parse(ComboBox_Rows.SelectedItem.ToString());
         }
 
-        private void ComboBox_Columns_SelectionChangeCommitted(object sender, EventArgs e)
-        {
-          number_of_col =  int.Parse(ComboBox_Columns.SelectedItem.ToString());
-        }
 
-        private void label7_Click(object sender, EventArgs e)
-        {
 
-        }
 
-        private void button5_Click_1(object sender, EventArgs e)
-        {
-            Create_file();
-        }
+
+
 
         private void button3_Click(object sender, EventArgs e)
         {
@@ -1037,7 +916,7 @@ else if (Chipbond)
                 file2.Close();
             }
 
-            
+
         }
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
@@ -1048,10 +927,10 @@ else if (Chipbond)
                 Chipbond = true;
             }
 
-          else  if (Pointmarks ==false & Chipbond == true)
+            else if (Pointmarks == false & Chipbond == true)
             {
                 Pointmarks = true;
-                Chipbond =false;
+                Chipbond = false;
             }
         }
 
@@ -1059,5 +938,692 @@ else if (Chipbond)
         {
 
         }
+
+
+
+
+        private void Update_map2(float x, float y, Boolean status)
+        {
+
+
+            if (Pointmarks && status)
+            {
+
+                Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
+
+                label8.Text = column_number.ToString();
+
+                switch (MEASURMENT_SEQUESNCE)
+                {
+
+                    case 99:
+
+                        break;
+
+                    case 0:
+
+                        Infolabel.Text = "Referance Point 1";
+
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MEASURMENT_SEQUESNCE++;
+
+                        break;
+
+
+                    case 1:
+                        Infolabel.Text = "Referance Point 2";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+
+                        break;
+                    case 2:
+                        Infolabel.Text = "Referance Point 3";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        DO_Referance = false;
+                        break;
+
+
+                    case 3:
+                        Infolabel.Text = "Point Mark 1";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+                    case 4:
+                        Infolabel.Text = "Point Mark 2";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+                    case 5:
+                        Infolabel.Text = "Point Mark 3";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+                    case 6:
+
+
+                        Infolabel.Text = "Point Mark 4";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+                    case 7:
+
+
+
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+
+                    default:
+                        //  MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, false); ///true set Black  77 false set YELLOW
+                        break;
+
+                }
+            }
+
+            else if (Pointmarks && status == false)
+            {
+
+                Infolabel.Text = "Referance Point 1";
+                label8.Text = column_number.ToString();
+                MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                //    testwrite2(x, y, MEASURMENT_SEQUESNCE ); 
+                MEASURMENT_SEQUESNCE++;
+
+            }
+
+
+
+            if (Chipbond && status)
+            {
+
+
+                Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
+
+                label8.Text = column_number.ToString();
+
+                switch (MEASURMENT_SEQUESNCE)
+                {
+
+                    case 99:
+
+                        break;
+
+                    case 0:
+
+                        Infolabel.Text = "Referance Point 1";
+
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MEASURMENT_SEQUESNCE++;
+
+                        break;
+
+
+                    case 1:
+                        Infolabel.Text = "Referance Point 2";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+
+                        break;
+                    case 2:
+                        Infolabel.Text = "Referance Point 3";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        DO_Referance = false;
+                        break;
+
+
+                    case 3:
+                        Infolabel.Text = "Chip 1 Top Left corner";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+                    case 4:
+                        Infolabel.Text = "Chip 1 Top Right corner";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+                    case 5:
+                        Infolabel.Text = "Chip 2 Top Left corner";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+                    case 6:
+                        Infolabel.Text = "Chip 2 Top Right corner";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+                    case 7:
+                        Infolabel.Text = "Chip 3 Top Left corner";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+                    case 8:
+                        Infolabel.Text = "Chip 3 Top Right corner";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+                    case 9:
+
+
+                        Infolabel.Text = "Chip 4 Top Left corner";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+                    case 10:
+
+
+                        Infolabel.Text = "Chip 4 Top Right corner";
+                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+
+                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+
+                    case 11:
+
+
+
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+
+                    default:
+                        //  MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, false); ///true set Black  77 false set YELLOW
+                        break;
+
+                }
+            }
+
+            else if (Chipbond && status == false)
+            {
+
+                Infolabel.Text = "Referance Point 1";
+                label8.Text = column_number.ToString();
+                MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
+                //    testwrite2(x, y, MEASURMENT_SEQUESNCE ); 
+                MEASURMENT_SEQUESNCE++;
+
+            }
+
+        }
+    
+
+private void update_labels2(float x, float y, Boolean reset)
+        {
+
+            if (Pointmarks && reset)
+            {
+
+                if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 1 && reset == true))
+                {
+                  // Infolabel.Text = "Referance Point 1";
+                 //   testwrite(x, y, MEASURMENT_SEQUESNCE);
+                //    MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+
+                if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 2))
+                {
+                    //  Infolabel.Text = "Referance Point 2";
+                    //  testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    //  MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+
+                if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 3))
+                {
+                    //    Infolabel.Text = "Referance Point 3";
+                    //    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    //    MEASURMENT_SEQUESNCE++;
+                    //   DO_Referance = false;
+                    return;
+                }
+
+                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 4 && number_of_rows >= 1))
+                {
+                    Infolabel.Text = "Point Mark 1";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+
+                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 5 && number_of_rows >= 2))
+                {
+                    Infolabel.Text = "Point Mark 2";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+
+                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 6 && number_of_rows >= 3))
+                {
+                    Infolabel.Text = "Point Mark 3";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    MEASURMENT_SEQUESNCE++;
+                    return;
+
+                }
+
+                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 7 && number_of_rows == 4))
+
+                {
+                    Infolabel.Text = "Point Mark 4";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+                
+
+        
+                
+            }
+
+            else if (Chipbond)
+            {
+
+                if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 1 && reset == true))
+                {
+                    Infolabel.Text = "Referance Point 1";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+
+                if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 2))
+                {
+                    Infolabel.Text = "Referance Point 2";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+
+                if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 3))
+                {
+                    Infolabel.Text = "Referance Point 3";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    MEASURMENT_SEQUESNCE++;
+                    DO_Referance = false;
+                    return;
+                }
+
+                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 4 && number_of_rows >= 1))
+                {
+                    Infolabel.Text = "Point Mark 1_Left";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+
+                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 5 && number_of_rows >= 1))
+                {
+                    Infolabel.Text = "Point Mark 1_Right";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+
+                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 6 && number_of_rows >= 2))
+                {
+                    Infolabel.Text = "Point Mark 2_Left";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+
+                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 7 && number_of_rows >= 2))
+                {
+                    Infolabel.Text = "Point Mark 2_Right";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+
+                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 8 && number_of_rows >= 3))
+                {
+                    Infolabel.Text = "Point Mark 3_Left";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+
+                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 9 && number_of_rows >= 3))
+                {
+                    Infolabel.Text = "Point Mark 3_Right";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 10 && number_of_rows == 4))
+                {
+                    Infolabel.Text = "Point Mark 4_Left";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+
+                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 11 && number_of_rows == 4))
+                {
+                    Infolabel.Text = "Point Mark 4_Right";
+                    testwrite(x, y, MEASURMENT_SEQUESNCE);
+                    // MEASURMENT_SEQUESNCE++;
+                    return;
+                }
+
+
+                if (MEASURMENT_SEQUESNCE == (number_of_rows + 3))
+                {
+                    MEASURMENT_SEQUESNCE = 1;
+                    return;
+                }
+
+            }
+
+        }
+
+
+        public void Index_Register2(float x, float y)
+        {
+
+
+
+
+            if (Pointmarks && Index_changed)
+            {
+                Update_map2(x, y, true);
+
+                if (number_of_rows == 1 && MEASURMENT_SEQUESNCE == 5)
+                {
+                    position_number = 0;
+                    column_number++;
+                    row_number = 0;
+                    Measurment_started = true;
+                    DO_Referance = true;
+                    MEASURMENT_SEQUESNCE = 0;
+                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map2(0, 0, false);
+                }
+
+                if (number_of_rows == 2 && MEASURMENT_SEQUESNCE == 6)
+                {
+                    position_number = 0;
+                    column_number++;
+                    row_number = 0;
+                    Measurment_started = true;
+                    DO_Referance = true;
+                    MEASURMENT_SEQUESNCE = 0;
+                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map2(0, 0, false);
+                }
+
+
+                if (number_of_rows == 3 && MEASURMENT_SEQUESNCE == 7)
+                {
+                    position_number = 0;
+                    column_number++;
+                    row_number = 0;
+                    Measurment_started = true;
+                    DO_Referance = true;
+                    MEASURMENT_SEQUESNCE = 0;
+                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map2(0, 0, false);
+                }
+
+
+                if (number_of_rows == 4 && MEASURMENT_SEQUESNCE == 8)
+                {
+                    position_number = 0;
+                    column_number++;
+                    row_number = 0;
+                    Measurment_started = true;
+                    DO_Referance = true;
+                    MEASURMENT_SEQUESNCE = 0;
+                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map2(0, 0, false);
+                }
+
+
+
+
+                Index_changed = false;
+
+            }
+
+            else if (Chipbond && Index_changed)
+            {
+                Update_map2(x, y, true);
+                if (number_of_rows == 1 && MEASURMENT_SEQUESNCE == 4)
+                {
+                    position_number = 0;
+                    column_number++;
+                    row_number = 0;
+                    Measurment_started = true;
+                    DO_Referance = true;
+                    MEASURMENT_SEQUESNCE = 0;
+                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map2(0, 0, false);
+                }
+
+                if (number_of_rows == 2 && MEASURMENT_SEQUESNCE == 8)
+                {
+                    position_number = 0;
+                    column_number++;
+                    row_number = 0;
+                    Measurment_started = true;
+                    DO_Referance = true;
+                    MEASURMENT_SEQUESNCE = 0;
+                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map2(0, 0, false);
+                }
+
+
+                if (number_of_rows == 3 && MEASURMENT_SEQUESNCE == 10)
+                {
+                    position_number = 0;
+                    column_number++;
+                    row_number = 0;
+                    Measurment_started = true;
+                    DO_Referance = true;
+                    MEASURMENT_SEQUESNCE = 0;
+                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map2(0, 0, false);
+                }
+
+
+                if (number_of_rows == 4 && MEASURMENT_SEQUESNCE == 12)
+                {
+                    position_number = 0;
+                    column_number++;
+                    row_number = 0;
+                    Measurment_started = true;
+                    DO_Referance = true;
+                    MEASURMENT_SEQUESNCE = 0;
+                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map2(0, 0, false);
+                }
+
+
+
+
+                Index_changed = false;
+
+            }
+        }
+
     }
-}
+
+
+ 
+        }
+
+        
