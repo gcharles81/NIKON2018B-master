@@ -32,12 +32,19 @@ namespace NIKON2018
         Boolean DO_Referance = true;
         Boolean Pointmarks = true; //by default pointmarks radio button is set to checked on startup 
         Boolean Chipbond = false; //by default chipbond radio button is set to unchecked on startup 
-        int X_VIS_START = 200;
-        int Y_VIS_START = 250;
-        int RECT_VIS_SIZE = 60;
-        int VisualizerX_size = 65;
-        int VisualizerY_size = 325;
 
+
+        /// <Visualizer_definition_sizes / >
+
+        int X_VIS_START = 50;//Start porition cordinate Top Left 
+        int Y_VIS_START = 30;//Start porition cordinate Top Left 
+        int VisualizerX_size = 120;//Size in X of Visualizer 
+        int VisualizerY_size = 540;//Size in Y of Visualizer 
+        int RECT_VIS_SIZE = 90;//size of PAD for Visualizer 
+        int Vis_pitch_X = 0;//not used but future might need for multichip in X 
+        int YP = 105;//note this has to be set bigger than RECT_VIS_SIZE
+        int Circle_Size = 60;
+        /// 
         int MEASURMENT_SEQUESNCE = 1;
 
         String FILE_name = "results.txt";
@@ -58,10 +65,22 @@ namespace NIKON2018
             FOLDERS(); /// Create folders if not found
 
 
-    
+
 
             COMport.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
 
+        }
+
+        public void Visualizer_Border(int X, int Y)
+        {
+            System.Drawing.Graphics graphicsObj;
+
+            graphicsObj = this.CreateGraphics();
+            Rectangle window = new Rectangle(X - 3, Y - 3, VisualizerX_size + 6, VisualizerY_size + 6);
+            Pen myPen = new Pen(Color.Black, 3);
+
+            graphicsObj.DrawRectangle(myPen, window);
+            graphicsObj.Dispose();
         }
         public void Create_file()
         {
@@ -194,7 +213,7 @@ namespace NIKON2018
         private void button1_Click(object sender, EventArgs e)
         {
 
-           
+
         }
 
         private void Serial_connect()
@@ -255,9 +274,9 @@ namespace NIKON2018
                 #endregion
             }
         }
-            
-            
-            private void button2_Click(object sender, EventArgs e)
+
+
+        private void button2_Click(object sender, EventArgs e)
         {
             COMport.Close();
         }
@@ -273,7 +292,7 @@ namespace NIKON2018
             Measurment_started = true;
             DO_Referance = true;
             MEASURMENT_SEQUESNCE = 0;
-            Update_map2(0, 0, false);
+            Update_map22(0, 0, false);
         }
 
         private void REPLY_TO_NIKON()
@@ -293,10 +312,7 @@ namespace NIKON2018
             }
         }
 
-      
 
-
- 
 
         private void button4_Click(object sender, EventArgs e)//Only used for debugging 
         {
@@ -304,9 +320,6 @@ namespace NIKON2018
             if (Debug_without_RS232)
             {
                 sRecv = "0.2003,0.1019";
-
-
-                //  INC_position_number();
                 Index_changed = true;
                 Have_message = true;
             }
@@ -316,19 +329,6 @@ namespace NIKON2018
 
         public void RESET_position_number()
         {
-            /*
-            position_number = 0;
-            column_number = 1;
-            row_number = 0;
-
-            label4.Text = position_number.ToString();
-            label6.Text = row_number.ToString();
-            label8.Text = column_number.ToString();
-            Index_changed = true;
-            Measurment_started = true;
-            update_labels2(0, 0, false);
-            Update_map2(0, 0, false);
-            */
 
             position_number = 0;
             column_number = 1;
@@ -336,56 +336,123 @@ namespace NIKON2018
             Measurment_started = true;
             DO_Referance = true;
             MEASURMENT_SEQUESNCE = 0;
-            //   update_labels2(0, 0, false);
-            Update_map2(0, 0, true);
+            Update_map22(0, 0, true);
         }
 
 
 
-
-
-        private void timer2_Tick(object sender, EventArgs e)
+        private void Draw_pad_border(int X, int Y, int width, int height, Color colors)
         {
-
-        }
-
-
-
-        private void button5_Click(object sender, EventArgs e)
-        {
-
-        }
-
-
-        private void MY_PAD1_DRAW(int X, int Y, int width, int height, Color colors)
-        {
+            int FDSX = (VisualizerX_size - RECT_VIS_SIZE) / 2 + X;
+            X = FDSX;
             System.Drawing.Graphics graphicsObj;
 
             graphicsObj = this.CreateGraphics();
             Rectangle window = new Rectangle(X, Y, width, height);
-            Pen myPen = new Pen(colors, 2);
+            Pen myPen = new Pen(colors, 5);
 
             graphicsObj.DrawRectangle(myPen, window);
             graphicsObj.Dispose();
         }
 
+        private void MY_PAD_CB_FILL(int X, int Y, int width, int height, Color colors,int row_number )
+        {
+            int FDSX = (VisualizerX_size - RECT_VIS_SIZE) / 2 + X;
+
+            int YYCALC = Y_VIS_START + (YP * row_number);
+
+            X = FDSX;
+
+            System.Drawing.Graphics graphicsObj;
+            graphicsObj = this.CreateGraphics();
+            Rectangle window = new Rectangle(X + 10, Y + 10, width - 20, height -20);
+            int XTE = (width - 4) / 2;
+            int YTE = (height - 4) / 2;
+            graphicsObj.FillRectangle(Brushes.Orange, window);
+            graphicsObj.Dispose();
+
+            // lets draw Chip 
+            int Chipsize = width - 50;
+            int Chip_Start_Corner_X = X + 25;
+            int Chip_Start_Corner_Y = Y + 25;
+
+            graphicsObj = this.CreateGraphics();
+            Rectangle Chipwindow = new Rectangle(Chip_Start_Corner_X, Chip_Start_Corner_Y, Chipsize, Chipsize);
+         
+            graphicsObj.FillRectangle(Brushes.LightSkyBlue, Chipwindow);
+            graphicsObj.Dispose();
+            ///
+
+            
+            graphicsObj = this.CreateGraphics();
+
+
+            if (row_number == 1)
+            {
+
+                Pen GFD = new Pen(Color.Blue, 4);
+                // graphicsObj.FillRectangle(Brushes.Blue, window2);//this is point mark 
+
+                Point point1_A = new Point((Chip_Start_Corner_X - 8), (Chip_Start_Corner_Y));
+                Point point2_A = new Point((Chip_Start_Corner_X + 8), (Chip_Start_Corner_Y));
+                Point point3_A = new Point((Chip_Start_Corner_X), (Chip_Start_Corner_Y - 8));
+                Point point4_A = new Point((Chip_Start_Corner_X), (Chip_Start_Corner_Y + 8));
+                graphicsObj.DrawLine(GFD, point1_A, point2_A);
+                graphicsObj.DrawLine(GFD, point3_A, point4_A);
+
+            }
+
+            else if (row_number == 99)
+            {
+
+
+                Pen ASDX = new Pen(Color.Blue, 4);
+                Point point1 = new Point((Chip_Start_Corner_X - 8 + Chipsize), (Chip_Start_Corner_Y));
+                Point point2 = new Point((Chip_Start_Corner_X + 8 + Chipsize), (Chip_Start_Corner_Y));
+                Point point3 = new Point((Chip_Start_Corner_X + Chipsize), (Chip_Start_Corner_Y - 8));
+                Point point4 = new Point((Chip_Start_Corner_X + Chipsize), (Chip_Start_Corner_Y + 8));
+                graphicsObj.DrawLine(ASDX, point1, point2);
+                graphicsObj.DrawLine(ASDX, point3, point4);
+            }
+            graphicsObj.Dispose();
+    
+
+        }
+
+       
 
 
         private void MY_PAD1_FILL(int X, int Y, int width, int height, Color colors)
         {
+            int FDSX = (VisualizerX_size - RECT_VIS_SIZE) / 2 + X;
+
+            X = FDSX;
             System.Drawing.Graphics graphicsObj;
 
             graphicsObj = this.CreateGraphics();
-            Rectangle window = new Rectangle(X + 2, Y + 2, width - 4, height - 4);
+            Rectangle window = new Rectangle(X + 5, Y + 5, width - 10, height -10);
             int XTE = (width - 4) / 2;
             int YTE = (height - 4) / 2;
 
-            Rectangle window2 = new Rectangle(((X + 2 + XTE)), ((Y + 2 + YTE)), 3, 3);
-            Pen myPen = new Pen(colors, 3);
 
-            graphicsObj.FillRectangle(Brushes.LawnGreen, window);
-            graphicsObj.FillRectangle(Brushes.Black, window2);
 
+            graphicsObj.FillRectangle(Brushes.GreenYellow, window);
+
+            graphicsObj.Dispose();
+
+
+
+            graphicsObj = this.CreateGraphics();
+            Rectangle window2 = new Rectangle(((X + 2 + XTE)), ((Y + 2 + YTE)), 5,5); //this is point mark 
+            Pen GFD = new Pen(Color.Blue, 4);
+            // graphicsObj.FillRectangle(Brushes.Blue, window2);//this is point mark 
+
+            Point point1 = new Point((X + XTE + 2 - 10), (Y + 2 + YTE-2));
+            Point point2 = new Point((X + XTE + 2 + 10), (Y + 2 + YTE-2));
+            Point point3 = new Point((X + XTE + 2 ), (Y + 2 + YTE - 2 -10));
+            Point point4 = new Point((X + XTE + 2 ), (Y + 2 + YTE - 2+10));
+            graphicsObj.DrawLine(GFD, point1, point2);
+            graphicsObj.DrawLine(GFD, point3, point4);
             graphicsObj.Dispose();
 
         }
@@ -396,9 +463,6 @@ namespace NIKON2018
             {
                 Graphics myGraphics = base.CreateGraphics();
                 Pen h = new Pen(Color.Aqua, 2);
-                //  myGraphics.DrawLine(h, X, Y, X, Y + height);
-                //   myGraphics.DrawLine(h, X, Y, X + width, Y);
-
                 myGraphics.FillEllipse(Brushes.Black, X, Y, width, height);
                 myGraphics.Dispose();
             }
@@ -486,18 +550,23 @@ namespace NIKON2018
             {
                 Graphics myGraphics = base.CreateGraphics();
                 myGraphics.FillEllipse(Brushes.GreenYellow, X, Y, 9, 9);
+                myGraphics.Dispose();
             }
         }
         private void MY_PAD1_FILL_2(int X, int Y, int width, int height, Color colors)
         {
+            int FDSX = (VisualizerX_size - RECT_VIS_SIZE) / 2 + X;
+
+            X = FDSX;
+
             System.Drawing.Graphics graphicsObj;
 
             graphicsObj = this.CreateGraphics();
             Rectangle window = new Rectangle(X + 2, Y + 2, width - 4, height - 4);
             Pen myPen = new Pen(colors, 3);
 
-            graphicsObj.FillRectangle(Brushes.Green, window);
-            //    graphicsObj.DrawRectangle(myPen, window);
+            graphicsObj.FillRectangle(Brushes.DarkGray, window);
+            graphicsObj.Dispose();
 
         }
         private void timer3_Tick(object sender, EventArgs e)
@@ -513,116 +582,12 @@ namespace NIKON2018
             Rectangle window = new Rectangle(X, Y, width, height);
             Pen myPen = new Pen(colors, 3);
 
-            graphicsObj.FillRectangle(Brushes.Green, window);
+            graphicsObj.FillRectangle(Brushes.DarkGreen, window);
             graphicsObj.DrawRectangle(myPen, window);
+            graphicsObj.Dispose();
 
-        }
+            Visualizer_Border(X, Y);
 
-        private void testwrite(float X, float Y, int s)
-        {
-            StreamWriter file2 = new System.IO.StreamWriter(FILE_path, true);
-
-            if (s == 1)
-
-            {
-                file2.Write("Dev ");
-                file2.Write(column_number);
-                file2.Write(" , ");
-                file2.Write("Ref1_X");
-                file2.Write(" , ");
-                file2.Write(X);
-                file2.Write(" , ");
-                file2.Write("Ref1_Y");
-                file2.Write(" , ");
-                file2.WriteLine(Y);
-                file2.Close();
-            }
-
-            if (s == 2)
-            {
-                file2.Write("Dev ");
-                file2.Write(column_number);
-                file2.Write(" , ");
-                file2.Write("Ref2_X");
-                file2.Write(" , ");
-                file2.Write(X);
-                file2.Write(" , ");
-                file2.Write("Ref2_Y");
-                file2.Write(" , ");
-                file2.WriteLine(Y);
-                file2.Close();
-            }
-            if (s == 3)
-            {
-                file2.Write("Dev ");
-                file2.Write(column_number);
-                file2.Write(" , ");
-                file2.Write("Ref3_X");
-                file2.Write(" , ");
-                file2.Write(X);
-                file2.Write(" , ");
-                file2.Write("Ref3_Y");
-                file2.Write(" , ");
-                file2.WriteLine(Y);
-                file2.Close();
-            }
-
-            if (s == 4)
-            {
-                file2.Write("Dev ");
-                file2.Write(column_number);
-                file2.Write(" , ");
-                file2.Write("Pt1_A_X");
-                file2.Write(" , ");
-                file2.Write(X);
-                file2.Write(" , ");
-                file2.Write("Pt1_A_Y");
-                file2.Write(" , ");
-                file2.WriteLine(Y);
-                file2.Close();
-            }
-            if (s == 5)
-            {
-                file2.Write("Dev ");
-                file2.Write(column_number);
-                file2.Write(" , ");
-                file2.Write("Pt2_A_X");
-                file2.Write(" , ");
-                file2.Write(X);
-                file2.Write(" , ");
-                file2.Write("Pt2_A_Y");
-                file2.Write(" , ");
-                file2.WriteLine(Y);
-                file2.Close();
-            }
-            if (s == 6)
-            {
-                file2.Write("Dev ");
-                file2.Write(column_number);
-                file2.Write(" , ");
-                file2.Write("Pt3_A_X");
-                file2.Write(" , ");
-                file2.Write(X);
-                file2.Write(" , ");
-                file2.Write("Pt3_A_Y");
-                file2.Write(" , ");
-                file2.WriteLine(Y);
-                file2.Close();
-            }
-            if (s == 7)
-            {
-                file2.Write("Dev ");
-                file2.Write(column_number);
-                file2.Write(" , ");
-                file2.Write("Pt4_A_X");
-                file2.Write(" , ");
-                file2.Write(X);
-                file2.Write(" , ");
-                file2.Write("Pt4_A_Y");
-                file2.Write(" , ");
-                file2.WriteLine(Y);
-                file2.Close();
-            }
         }
 
 
@@ -900,15 +865,8 @@ namespace NIKON2018
             number_of_rows = int.Parse(ComboBox_Rows.SelectedItem.ToString());
         }
 
-
-
-
-
-
-
         private void button3_Click(object sender, EventArgs e)
         {
-
 
             if (System.IO.File.Exists(FILE_path))
             {
@@ -940,7 +898,7 @@ namespace NIKON2018
         }
 
 
-
+        /*
 
         private void Update_map2(float x, float y, Boolean status)
         {
@@ -951,14 +909,12 @@ namespace NIKON2018
 
                 Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
 
-                label8.Text = column_number.ToString();
+                Column_number_lable.Text = column_number.ToString();
 
                 switch (MEASURMENT_SEQUESNCE)
                 {
 
-                    case 99:
-
-                        break;
+               
 
                     case 0:
 
@@ -995,7 +951,7 @@ namespace NIKON2018
                         MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
                         MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
@@ -1008,12 +964,12 @@ namespace NIKON2018
                         Infolabel.Text = "Point Mark 2";
                         MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
                         MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         testwrite2(x, y, MEASURMENT_SEQUESNCE);
@@ -1024,15 +980,15 @@ namespace NIKON2018
                         Infolabel.Text = "Point Mark 3";
                         MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
                         MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         testwrite2(x, y, MEASURMENT_SEQUESNCE);
@@ -1046,19 +1002,19 @@ namespace NIKON2018
                         MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
                         MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         testwrite2(x, y, MEASURMENT_SEQUESNCE);
@@ -1075,7 +1031,7 @@ namespace NIKON2018
 
 
                     default:
-                        //  MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, false); ///true set Black  77 false set YELLOW
+                      
                         break;
 
                 }
@@ -1085,7 +1041,7 @@ namespace NIKON2018
             {
 
                 Infolabel.Text = "Referance Point 1";
-                label8.Text = column_number.ToString();
+                Column_number_lable.Text = column_number.ToString();
                 MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
                 MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
                 //    testwrite2(x, y, MEASURMENT_SEQUESNCE ); 
@@ -1101,14 +1057,12 @@ namespace NIKON2018
 
                 Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
 
-                label8.Text = column_number.ToString();
+                Column_number_lable.Text = column_number.ToString();
 
                 switch (MEASURMENT_SEQUESNCE)
                 {
 
-                    case 99:
-
-                        break;
+             
 
                     case 0:
 
@@ -1145,7 +1099,7 @@ namespace NIKON2018
                         MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
                         MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
@@ -1159,7 +1113,7 @@ namespace NIKON2018
                         MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
                         MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
@@ -1172,12 +1126,12 @@ namespace NIKON2018
                         Infolabel.Text = "Chip 2 Top Left corner";
                         MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
                         MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         testwrite2(x, y, MEASURMENT_SEQUESNCE);
@@ -1187,12 +1141,12 @@ namespace NIKON2018
                         Infolabel.Text = "Chip 2 Top Right corner";
                         MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
                         MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         testwrite2(x, y, MEASURMENT_SEQUESNCE);
@@ -1202,15 +1156,15 @@ namespace NIKON2018
                         Infolabel.Text = "Chip 3 Top Left corner";
                         MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
                         MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         testwrite2(x, y, MEASURMENT_SEQUESNCE);
@@ -1221,15 +1175,15 @@ namespace NIKON2018
                         Infolabel.Text = "Chip 3 Top Right corner";
                         MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
                         MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         testwrite2(x, y, MEASURMENT_SEQUESNCE);
@@ -1242,19 +1196,19 @@ namespace NIKON2018
                         MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
                         MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         testwrite2(x, y, MEASURMENT_SEQUESNCE);
@@ -1268,19 +1222,19 @@ namespace NIKON2018
                         MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
                         MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
-                        MY_PAD1_DRAW(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                        Draw_pad_border(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
 
                         MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
                         testwrite2(x, y, MEASURMENT_SEQUESNCE);
@@ -1308,190 +1262,15 @@ namespace NIKON2018
             {
 
                 Infolabel.Text = "Referance Point 1";
-                label8.Text = column_number.ToString();
+                Column_number_lable.Text = column_number.ToString();
                 MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                //    testwrite2(x, y, MEASURMENT_SEQUESNCE ); 
+                MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW 
                 MEASURMENT_SEQUESNCE++;
 
             }
 
         }
-    
-
-private void update_labels2(float x, float y, Boolean reset)
-        {
-
-            if (Pointmarks && reset)
-            {
-
-                if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 1 && reset == true))
-                {
-                  // Infolabel.Text = "Referance Point 1";
-                 //   testwrite(x, y, MEASURMENT_SEQUESNCE);
-                //    MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-
-                if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 2))
-                {
-                    //  Infolabel.Text = "Referance Point 2";
-                    //  testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    //  MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-
-                if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 3))
-                {
-                    //    Infolabel.Text = "Referance Point 3";
-                    //    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    //    MEASURMENT_SEQUESNCE++;
-                    //   DO_Referance = false;
-                    return;
-                }
-
-                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 4 && number_of_rows >= 1))
-                {
-                    Infolabel.Text = "Point Mark 1";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-
-                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 5 && number_of_rows >= 2))
-                {
-                    Infolabel.Text = "Point Mark 2";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-
-                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 6 && number_of_rows >= 3))
-                {
-                    Infolabel.Text = "Point Mark 3";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    MEASURMENT_SEQUESNCE++;
-                    return;
-
-                }
-
-                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 7 && number_of_rows == 4))
-
-                {
-                    Infolabel.Text = "Point Mark 4";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-                
-
-        
-                
-            }
-
-            else if (Chipbond)
-            {
-
-                if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 1 && reset == true))
-                {
-                    Infolabel.Text = "Referance Point 1";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-
-                if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 2))
-                {
-                    Infolabel.Text = "Referance Point 2";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-
-                if ((Index_changed && DO_Referance == true && MEASURMENT_SEQUESNCE == 3))
-                {
-                    Infolabel.Text = "Referance Point 3";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    MEASURMENT_SEQUESNCE++;
-                    DO_Referance = false;
-                    return;
-                }
-
-                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 4 && number_of_rows >= 1))
-                {
-                    Infolabel.Text = "Point Mark 1_Left";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-
-                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 5 && number_of_rows >= 1))
-                {
-                    Infolabel.Text = "Point Mark 1_Right";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-
-                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 6 && number_of_rows >= 2))
-                {
-                    Infolabel.Text = "Point Mark 2_Left";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-
-                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 7 && number_of_rows >= 2))
-                {
-                    Infolabel.Text = "Point Mark 2_Right";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-
-                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 8 && number_of_rows >= 3))
-                {
-                    Infolabel.Text = "Point Mark 3_Left";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-
-                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 9 && number_of_rows >= 3))
-                {
-                    Infolabel.Text = "Point Mark 3_Right";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 10 && number_of_rows == 4))
-                {
-                    Infolabel.Text = "Point Mark 4_Left";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-
-                if ((Index_changed && DO_Referance == false && MEASURMENT_SEQUESNCE == 11 && number_of_rows == 4))
-                {
-                    Infolabel.Text = "Point Mark 4_Right";
-                    testwrite(x, y, MEASURMENT_SEQUESNCE);
-                    // MEASURMENT_SEQUESNCE++;
-                    return;
-                }
-
-
-                if (MEASURMENT_SEQUESNCE == (number_of_rows + 3))
-                {
-                    MEASURMENT_SEQUESNCE = 1;
-                    return;
-                }
-
-            }
-
-        }
-
-
+        */
         public void Index_Register2(float x, float y)
         {
 
@@ -1500,7 +1279,7 @@ private void update_labels2(float x, float y, Boolean reset)
 
             if (Pointmarks && Index_changed)
             {
-                Update_map2(x, y, true);
+                Update_map22(x, y, true);
 
                 if (number_of_rows == 1 && MEASURMENT_SEQUESNCE == 5)
                 {
@@ -1510,8 +1289,8 @@ private void update_labels2(float x, float y, Boolean reset)
                     Measurment_started = true;
                     DO_Referance = true;
                     MEASURMENT_SEQUESNCE = 0;
-                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
-                    Update_map2(0, 0, false);
+                    Reset_Visualizer(X_VIS_START, Y_VIS_START, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map22(0, 0, false);
                 }
 
                 if (number_of_rows == 2 && MEASURMENT_SEQUESNCE == 6)
@@ -1522,8 +1301,8 @@ private void update_labels2(float x, float y, Boolean reset)
                     Measurment_started = true;
                     DO_Referance = true;
                     MEASURMENT_SEQUESNCE = 0;
-                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
-                    Update_map2(0, 0, false);
+                    Reset_Visualizer(X_VIS_START, Y_VIS_START, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map22(0, 0, false);
                 }
 
 
@@ -1535,8 +1314,8 @@ private void update_labels2(float x, float y, Boolean reset)
                     Measurment_started = true;
                     DO_Referance = true;
                     MEASURMENT_SEQUESNCE = 0;
-                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
-                    Update_map2(0, 0, false);
+                    Reset_Visualizer(X_VIS_START, Y_VIS_START, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map22(0, 0, false);
                 }
 
 
@@ -1548,8 +1327,8 @@ private void update_labels2(float x, float y, Boolean reset)
                     Measurment_started = true;
                     DO_Referance = true;
                     MEASURMENT_SEQUESNCE = 0;
-                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
-                    Update_map2(0, 0, false);
+                    Reset_Visualizer(X_VIS_START, Y_VIS_START, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map22(0, 0, false);
                 }
 
 
@@ -1561,8 +1340,8 @@ private void update_labels2(float x, float y, Boolean reset)
 
             else if (Chipbond && Index_changed)
             {
-                Update_map2(x, y, true);
-                if (number_of_rows == 1 && MEASURMENT_SEQUESNCE == 4)
+                Update_map22(x, y, true);
+                if (number_of_rows == 1 && MEASURMENT_SEQUESNCE == 6)
                 {
                     position_number = 0;
                     column_number++;
@@ -1570,8 +1349,8 @@ private void update_labels2(float x, float y, Boolean reset)
                     Measurment_started = true;
                     DO_Referance = true;
                     MEASURMENT_SEQUESNCE = 0;
-                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
-                    Update_map2(0, 0, false);
+                    Reset_Visualizer(X_VIS_START, Y_VIS_START, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map22(0, 0, false);
                 }
 
                 if (number_of_rows == 2 && MEASURMENT_SEQUESNCE == 8)
@@ -1582,8 +1361,8 @@ private void update_labels2(float x, float y, Boolean reset)
                     Measurment_started = true;
                     DO_Referance = true;
                     MEASURMENT_SEQUESNCE = 0;
-                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
-                    Update_map2(0, 0, false);
+                    Reset_Visualizer(X_VIS_START, Y_VIS_START, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map22(0, 0, false);
                 }
 
 
@@ -1595,8 +1374,8 @@ private void update_labels2(float x, float y, Boolean reset)
                     Measurment_started = true;
                     DO_Referance = true;
                     MEASURMENT_SEQUESNCE = 0;
-                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
-                    Update_map2(0, 0, false);
+                    Reset_Visualizer(X_VIS_START, Y_VIS_START, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map22(0, 0, false);
                 }
 
 
@@ -1608,8 +1387,8 @@ private void update_labels2(float x, float y, Boolean reset)
                     Measurment_started = true;
                     DO_Referance = true;
                     MEASURMENT_SEQUESNCE = 0;
-                    Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
-                    Update_map2(0, 0, false);
+                    Reset_Visualizer(X_VIS_START, Y_VIS_START, VisualizerX_size, VisualizerY_size, Color.Green);
+                    Update_map22(0, 0, false);
                 }
 
 
@@ -1619,11 +1398,642 @@ private void update_labels2(float x, float y, Boolean reset)
 
             }
         }
+        /// <summary>
+        private void VIS_Referance_Circle(int number_of_rows)
+        {
+            int XSTART_VAL_REF_CRCL = (VisualizerX_size - Circle_Size) / 2 + X_VIS_START;
 
+            MY_REF_CRCL_FILL(XSTART_VAL_REF_CRCL, Y_VIS_START +15, Circle_Size, Circle_Size, true); ///true set Black  77 false set YELLOW
+            MY_REF_POINT_FILL(XSTART_VAL_REF_CRCL, Y_VIS_START+15, Circle_Size, Circle_Size, true); ///true set Black  77 false set YELLOW
+
+        }
+        ///////////////////
+        private void Show_Pad(Boolean Current, int Temp)///used only for point marks
+        {
+            int YYCALC = Y_VIS_START + (YP * Temp);
+            if (Current)
+            {
+                Draw_pad_border(X_VIS_START, YYCALC, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                MY_PAD1_FILL(X_VIS_START, YYCALC, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+            }
+
+            else
+            {
+                Draw_pad_border(X_VIS_START, YYCALC, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                MY_PAD1_FILL_2(X_VIS_START, YYCALC, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+            }
+        }
+        ///////////////////
+        private void Show_Pad_CB(Boolean Current, int Temp,int Which_corner)///used only for Chup Bond
+        {
+            int YYCALC = Y_VIS_START + (YP * Temp);
+
+            if (Current)
+            {
+               
+                Draw_pad_border(X_VIS_START, YYCALC, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red); // Draw border
+                MY_PAD_CB_FILL(X_VIS_START, YYCALC, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red, Which_corner);//Draw pad and Chip
+            }
+
+            else
+
+            {
+                Draw_pad_border(X_VIS_START, YYCALC, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+                MY_PAD1_FILL_2(X_VIS_START, YYCALC, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
+            }
+        }
+        private void VIS_TESTREW_POINTMARKS(int NUMber_ROWS, int Sequence)
+        {
+            
+            if (number_of_rows == 1)
+            {
+                switch (MEASURMENT_SEQUESNCE) {
+
+                    case 3:
+
+                        Show_Pad(true, 1);//true = Current pad for measurment // false already measured 
+
+                    break;
+
+                   
+                    default:
+                        break;
+
+                        }
+            }
+
+            if (number_of_rows == 2)
+            {
+                switch (MEASURMENT_SEQUESNCE)
+                {
+
+                    case 3:
+                        Show_Pad(true,1);//true = Current pad for measurment // false already measured                   
+                        Show_Pad(false,2);//true = Current pad for measurment // false already measured 
+                        break;
+                    case 4:
+                        Show_Pad(false,1);//true = Current pad for measurment // false already measured 
+                        Show_Pad(true,2);//true = Current pad for measurment // false already measured 
+                        break;
+                        
+                    default:
+                        break;
+
+                }
+            }
+
+            //
+            if (number_of_rows == 3)
+            {
+                switch (MEASURMENT_SEQUESNCE)
+                {
+
+                    case 3:
+                        Show_Pad(true, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(false, 2);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(false, 3);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                      
+                        break;
+
+
+                    case 4:
+
+                        Show_Pad(false, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4    
+                        Show_Pad(true, 2);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(false, 3);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                    
+                        break;
+
+                    case 5:
+
+                        Show_Pad(false, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(false, 2);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(true, 3);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        
+                        break;
+                    default:
+                        break;
+
+                }
+            }
+
+            //
+            //
+            if (number_of_rows == 4)
+            {
+            
+            switch (MEASURMENT_SEQUESNCE)
+            {
+
+                case 3:
+                        Show_Pad(true, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(false, 2);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(false, 3);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(false, 4);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        break;
+
+
+                case 4:
+
+                        Show_Pad(false, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(true, 2);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(false, 3);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(false, 4);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        break;
+
+                case 5:
+
+                        Show_Pad(false, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(false, 2);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(true, 3);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(false, 4);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+
+
+
+                        break;
+                case 6:
+                        Show_Pad(false, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(false, 2);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(false, 3);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad(true, 4);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+
+                        break;
+                default:
+                    break;
+
+            }
+        }
+
+        //
     }
 
+        private void Show_Chip_Right_Corner(Boolean state,int index)
+        {
 
- 
+
+
         }
+        private void VIS_TESTREW_CHIPBOND(int NUMber_ROWS, int Sequence)
+        {
+
+            if (number_of_rows == 1)
+            {
+                switch (MEASURMENT_SEQUESNCE)
+                {
+
+                    case 3:
+   
+                        Show_Pad_CB(true, 1,1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                      
+                        break;
+
+                    case 4:
+                       
+                        Show_Pad_CB(true, 1,99);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+
+                        break;
+                    default:
+                        break;
+
+                }
+            }
+
+            if (number_of_rows == 2)
+            {
+                switch (MEASURMENT_SEQUESNCE)
+                {
+                    case 3:
+
+                        Show_Pad_CB(true, 1, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 2, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+
+                    case 4:
+
+                        Show_Pad_CB(true, 1, 99);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 2, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+
+                    case 5:
+
+                        Show_Pad_CB(false, 1, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(true, 2, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+
+                        break;
+
+                    case 6:
+                        Show_Pad_CB(false, 1, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(true, 2, 99);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+
+                        break;
+
+                    default:
+                        break;
+
+                }
+            }
+
+            //
+            if (number_of_rows == 3)
+            {
+                switch (MEASURMENT_SEQUESNCE)
+                {
+
+                    case 3:
+
+                        Show_Pad_CB(true, 1, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 2, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        Show_Pad_CB(false, 3, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+
+                    case 4:
+
+                        Show_Pad_CB(true, 1, 99);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 2, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        Show_Pad_CB(false, 3, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+
+                    case 5:
+
+                        Show_Pad_CB(false, 1, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(true, 2, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 3, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+
+                    case 6:
+                        Show_Pad_CB(false, 1, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(true, 2, 99);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 3, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+                    case 7:
+
+                        Show_Pad_CB(false, 1, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 2, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(true, 3, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+
+                    case 8:
+                        Show_Pad_CB(false, 1, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 2, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(true, 3, 99);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+                    default:
+                        break;
+
+                }
+            }
+
+            //
+            //
+            if (number_of_rows == 4)
+            {
+
+                switch (MEASURMENT_SEQUESNCE)
+                {
+
+                    case 3:
+
+                        Show_Pad_CB(true, 1, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 2, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        Show_Pad_CB(false, 3, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        Show_Pad_CB(false, 4, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+
+                    case 4:
+
+                        Show_Pad_CB(true, 1, 99);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 2, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        Show_Pad_CB(false, 3, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        Show_Pad_CB(false, 4, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+
+                    case 5:
+
+                        Show_Pad_CB(false, 1, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(true, 2, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 3, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        Show_Pad_CB(false, 4, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+
+                    case 6:
+                        Show_Pad_CB(false, 1, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(true, 2, 99);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 3, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        Show_Pad_CB(false, 4, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+                    case 7:
+
+                        Show_Pad_CB(false, 1, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 2, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(true, 3, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        Show_Pad_CB(false, 4, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+
+                    case 8:
+                        Show_Pad_CB(false, 1, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 2, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(true, 3, 99);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        Show_Pad_CB(false, 4, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+                    case 9:
+
+                        Show_Pad_CB(false, 1, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 2, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 3, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        Show_Pad_CB(true, 4, 1);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+
+                    case 10:
+                        Show_Pad_CB(false, 1, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 2, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4 
+                        Show_Pad_CB(false, 3, 0);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        Show_Pad_CB(true, 4, 99);//true = Current pad for measurment // false already measured , Number represents pad number 1 -4
+                        break;
+                    default:
+                        break;
+
+                }
+            }
+
+            //
+        }
+        //
+        private void Update_map22(float x, float y, Boolean status)
+        {
+
+            int XSTART_VAL_REF_CRCL = (VisualizerX_size - Circle_Size) / 2 + X_VIS_START;
+
+
+            if (Pointmarks && status)
+            {
+
+                Reset_Visualizer(X_VIS_START, Y_VIS_START, VisualizerX_size, VisualizerY_size, Color.Green);
+
+                Column_number_lable.Text = column_number.ToString();
+
+                switch (MEASURMENT_SEQUESNCE)
+                {
+
+
+
+                    case 0:
+
+                        Infolabel.Text = "Referance Point 1";
+                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+
+                        MEASURMENT_SEQUESNCE++;
+
+                        break;
+
+
+                    case 1:
+                        Infolabel.Text = "Referance Point 2";
+                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+
+                        break;
+                    case 2:
+                        Infolabel.Text = "Referance Point 3";
+                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        DO_Referance = false;
+                        break;
+
+
+                    case 3:
+                        Infolabel.Text = "Point Mark 1";
+
+
+                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+                        VIS_TESTREW_POINTMARKS(number_of_rows, MEASURMENT_SEQUESNCE);
+                       
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+                    case 4:
+                        Infolabel.Text = "Point Mark 2";
+                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+                        VIS_TESTREW_POINTMARKS(number_of_rows, MEASURMENT_SEQUESNCE);
+                        
+                    testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+                    case 5:
+                        Infolabel.Text = "Point Mark 3";
+                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+                        VIS_TESTREW_POINTMARKS(number_of_rows, MEASURMENT_SEQUESNCE);
+
+                      
+                    testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+                    case 6:
+
+
+                        Infolabel.Text = "Point Mark 4";
+                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+                        VIS_TESTREW_POINTMARKS(number_of_rows, MEASURMENT_SEQUESNCE);
+
+                      
+                    testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+                    case 7:
+
+
+
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+
+                    default:
+
+                        break;
+
+                }
+            }
+
+            else if (Pointmarks && status == false)
+            {
+
+                Infolabel.Text = "Referance Point 1";
+                Column_number_lable.Text = column_number.ToString();
+              
+                VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+
+
+            }
+
+
+
+            if (Chipbond && status)
+            {
+
+
+                Reset_Visualizer(X_VIS_START, Y_VIS_START, VisualizerX_size, VisualizerY_size, Color.Green);
+
+                Column_number_lable.Text = column_number.ToString();
+
+                switch (MEASURMENT_SEQUESNCE)
+                {
+
+
+
+                    case 0:
+
+                        Infolabel.Text = "Referance Point 1";
+
+                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+
+                        MEASURMENT_SEQUESNCE++;
+
+                        break;
+
+
+                    case 1:
+                        Infolabel.Text = "Referance Point 2";
+                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+
+                        break;
+                    case 2:
+                        Infolabel.Text = "Referance Point 3";
+                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+
+
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        DO_Referance = false;
+                        break;
+
+
+                    case 3:
+                        Infolabel.Text = "Chip 1 Top Left corner";
+                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+                        VIS_TESTREW_CHIPBOND(number_of_rows, MEASURMENT_SEQUESNCE);
+
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+                    case 4:
+                        Infolabel.Text = "Chip 1 Top Right corner";
+                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+                        VIS_TESTREW_CHIPBOND(number_of_rows, MEASURMENT_SEQUESNCE);
+                       
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                        MEASURMENT_SEQUESNCE++;
+                        break;
+
+                    case 5:
+                        Infolabel.Text = "Chip 2 Top Left corner";
+                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+                        VIS_TESTREW_CHIPBOND(number_of_rows, MEASURMENT_SEQUESNCE);
+                      
+                       testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                       MEASURMENT_SEQUESNCE++;
+                       break;
+                   case 6:
+                       Infolabel.Text = "Chip 2 Top Right corner";
+                       VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+                        VIS_TESTREW_CHIPBOND(number_of_rows, MEASURMENT_SEQUESNCE);
+                       
+                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                       MEASURMENT_SEQUESNCE++;
+                       break;
+                   case 7:
+                       Infolabel.Text = "Chip 3 Top Left corner";
+                       VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+                        VIS_TESTREW_CHIPBOND(number_of_rows, MEASURMENT_SEQUESNCE);
+                       
+                       testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                       MEASURMENT_SEQUESNCE++;
+                       break;
+
+                   case 8:
+                       Infolabel.Text = "Chip 3 Top Right corner";
+                       VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+                        VIS_TESTREW_CHIPBOND(number_of_rows, MEASURMENT_SEQUESNCE);
+                       
+                       testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                       MEASURMENT_SEQUESNCE++;
+                       break;
+                   case 9:
+
+
+                       Infolabel.Text = "Chip 4 Top Left corner";
+
+                       VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+                        VIS_TESTREW_CHIPBOND(number_of_rows, MEASURMENT_SEQUESNCE);
+
+                       
+                       testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                       MEASURMENT_SEQUESNCE++;
+                       break;
+
+                   case 10:
+
+
+                       Infolabel.Text = "Chip 4 Top Right corner";
+
+                       VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+                        VIS_TESTREW_CHIPBOND(number_of_rows, MEASURMENT_SEQUESNCE);
+
+                       
+                       testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                       MEASURMENT_SEQUESNCE++;
+                       break;
+
+
+                   case 11:
+
+
+
+                       testwrite2(x, y, MEASURMENT_SEQUESNCE);
+                       MEASURMENT_SEQUESNCE++;
+                       break;
+
+
+                   default:
+                       //  MY_REF_CRCL_FILL(XSTART_VAL_REF_CRCL, Y_VIS_START - 65, Circle_Size,Circle_Size, false); ///true set Black  77 false set YELLOW
+                       break;
+
+               }
+           }
+
+           else if (Chipbond && status == false)
+           {
+
+               Infolabel.Text = "Referance Point 1";
+               Column_number_lable.Text = column_number.ToString();
+               Reset_Visualizer(X_VIS_START, Y_VIS_START, VisualizerX_size, VisualizerY_size, Color.Green);
+               VIS_Referance_Circle(number_of_rows); //update referance circle colours state
+
+               MEASURMENT_SEQUESNCE++;
+
+           }
+
+       }
+
+
+
+      
+                        ////////////////////////
+                }
+
+
+
+            }
 
         
