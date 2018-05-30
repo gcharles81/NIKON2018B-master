@@ -285,6 +285,7 @@ private void Load_Comm_settings()/// Load Com Settings
 
         private void timer1_Tick(object sender, EventArgs e)
         {
+            /*
             if (Have_message)
             {
 
@@ -312,11 +313,42 @@ private void Load_Comm_settings()/// Load Com Settings
                     REPLY_TO_NIKON();//lets reply SXY
                 }
 
+            
+                Have_message = false;
+                Index_changed = true;
+            }
+
+            */
+
+            ///// test for olimpus
+
+            if (Have_message)
+            {
 
 
+                string phrase = sRecv.ToString();
+
+                string[] words = phrase.Split(',');
+
+                String X = words[0].ToString();
+                String Y = words[1].ToString();
+
+                Xvalue_label.Text = X;
+                Yvalue_label.Text = Y;
+
+                float floatValueX = float.Parse(X);
+                float floatValueY = float.Parse(Y);
 
 
+                Index_Register2(floatValueX, floatValueY);
 
+
+                /*
+                if (Debug_without_RS232 == false)
+                {
+                    REPLY_TO_NIKON();//lets reply SXY
+                }
+                */
 
                 Have_message = false;
                 Index_changed = true;
