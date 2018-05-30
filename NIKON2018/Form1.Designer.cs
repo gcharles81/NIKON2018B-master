@@ -29,9 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.button3 = new System.Windows.Forms.Button();
+            this.Export_button = new System.Windows.Forms.Button();
             this.Xval_label = new System.Windows.Forms.Label();
             this.Yval_label = new System.Windows.Forms.Label();
             this.Yvalue_label = new System.Windows.Forms.Label();
@@ -52,9 +53,16 @@
             this.label12 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // serialPort1
@@ -71,16 +79,16 @@
             this.timer1.Interval = 500;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // button3
+            // Export_button
             // 
-            this.button3.BackColor = System.Drawing.Color.Olive;
-            this.button3.Location = new System.Drawing.Point(474, 113);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 76);
-            this.button3.TabIndex = 30;
-            this.button3.Text = "EXPORT";
-            this.button3.UseVisualStyleBackColor = false;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.Export_button.BackColor = System.Drawing.Color.Olive;
+            this.Export_button.Location = new System.Drawing.Point(474, 134);
+            this.Export_button.Name = "Export_button";
+            this.Export_button.Size = new System.Drawing.Size(75, 76);
+            this.Export_button.TabIndex = 30;
+            this.Export_button.Text = "EXPORT";
+            this.Export_button.UseVisualStyleBackColor = false;
+            this.Export_button.Click += new System.EventHandler(this.button3_Click);
             // 
             // Xval_label
             // 
@@ -135,7 +143,7 @@
             // RESET_button
             // 
             this.RESET_button.BackColor = System.Drawing.Color.Olive;
-            this.RESET_button.Location = new System.Drawing.Point(474, 18);
+            this.RESET_button.Location = new System.Drawing.Point(474, 39);
             this.RESET_button.Name = "RESET_button";
             this.RESET_button.Size = new System.Drawing.Size(75, 76);
             this.RESET_button.TabIndex = 23;
@@ -169,10 +177,10 @@
             // 
             // button4
             // 
-            this.button4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
-            this.button4.Location = new System.Drawing.Point(599, 318);
+            this.button4.BackColor = System.Drawing.Color.Red;
+            this.button4.Location = new System.Drawing.Point(599, 235);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(174, 41);
+            this.button4.Size = new System.Drawing.Size(174, 124);
             this.button4.TabIndex = 37;
             this.button4.Text = "Simulate INDEX NEXT";
             this.button4.UseVisualStyleBackColor = false;
@@ -233,7 +241,7 @@
             this.panel1.BackColor = System.Drawing.Color.Silver;
             this.panel1.Controls.Add(this.ComboBox_Rows);
             this.panel1.Controls.Add(this.label_Rows);
-            this.panel1.Location = new System.Drawing.Point(573, 12);
+            this.panel1.Location = new System.Drawing.Point(573, 33);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(200, 82);
             this.panel1.TabIndex = 47;
@@ -260,6 +268,7 @@
             this.radioButton2.TabIndex = 36;
             this.radioButton2.Text = "Chip Bond";
             this.radioButton2.UseVisualStyleBackColor = true;
+            this.radioButton2.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
             // 
             // label11
             // 
@@ -277,7 +286,7 @@
             this.panel2.Controls.Add(this.label11);
             this.panel2.Controls.Add(this.radioButton1);
             this.panel2.Controls.Add(this.radioButton2);
-            this.panel2.Location = new System.Drawing.Point(573, 111);
+            this.panel2.Location = new System.Drawing.Point(573, 132);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(200, 82);
             this.panel2.TabIndex = 48;
@@ -320,24 +329,75 @@
             this.panel3.Size = new System.Drawing.Size(465, 132);
             this.panel3.TabIndex = 51;
             // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem2,
+            this.toolStripMenuItem6});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(784, 24);
+            this.menuStrip1.TabIndex = 153;
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripSeparator1,
+            this.toolStripMenuItem5});
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(37, 20);
+            this.toolStripMenuItem2.Text = "&File";
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(89, 6);
+            // 
+            // toolStripMenuItem5
+            // 
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(92, 22);
+            this.toolStripMenuItem5.Text = "E&xit";
+            this.toolStripMenuItem5.Click += new System.EventHandler(this.toolStripMenuItem5_Click);
+            // 
+            // toolStripMenuItem6
+            // 
+            this.toolStripMenuItem6.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem7});
+            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(44, 20);
+            this.toolStripMenuItem6.Text = "&Help";
+            // 
+            // toolStripMenuItem7
+            // 
+            this.toolStripMenuItem7.Name = "toolStripMenuItem7";
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(107, 22);
+            this.toolStripMenuItem7.Text = "&About";
+            this.toolStripMenuItem7.Click += new System.EventHandler(this.toolStripMenuItem7_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DarkGreen;
-            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(784, 602);
+            this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.label13);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
+            this.Controls.Add(this.Export_button);
             this.Controls.Add(this.RESET_button);
             this.HelpButton = true;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(800, 640);
             this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(800, 640);
             this.Name = "Form1";
             this.Text = "NIKON2018";
             this.panel1.ResumeLayout(false);
@@ -345,6 +405,8 @@
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             this.panel3.ResumeLayout(false);
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -354,7 +416,7 @@
 
         private System.IO.Ports.SerialPort serialPort1;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button Export_button;
         private System.Windows.Forms.Label Xval_label;
         private System.Windows.Forms.Label Yval_label;
         private System.Windows.Forms.Label Yvalue_label;
@@ -375,6 +437,12 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem5;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem6;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem7;
     }
 }
 

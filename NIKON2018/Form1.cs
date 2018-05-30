@@ -15,7 +15,13 @@ namespace NIKON2018
 {
     public partial class Form1 : Form
     {
+
+        Boolean Debug_without_RS232 = false;//set to true to debug witout microscope connected 
         string Selected_Port_Baudrate;    //used for storing selected Baudrate and COMport,for displaying purposes 
+        string Port_Name = "";
+        int Baud_Rate = 0;
+        int Port_DataBits = 0;
+
         SerialPort COMport = new SerialPort();
         Boolean Have_message = false;
         String sRecv;
@@ -26,7 +32,7 @@ namespace NIKON2018
         int number_of_rows = 1;
         int column_number = 1;
         int row_number = 0;
-        Boolean Debug_without_RS232 = true;//set to true to debug witout microscope connected 
+        
         Boolean Index_changed = false;
         Boolean Measurment_started = false;
         Boolean DO_Referance = true;
@@ -37,7 +43,7 @@ namespace NIKON2018
         /// <Visualizer_definition_sizes / >
 
         int X_VIS_START = 50;//Start porition cordinate Top Left 
-        int Y_VIS_START = 30;//Start porition cordinate Top Left 
+        int Y_VIS_START = 40;//Start porition cordinate Top Left 
         int VisualizerX_size = 120;//Size in X of Visualizer 
         int VisualizerY_size = 540;//Size in Y of Visualizer 
         int RECT_VIS_SIZE = 90;//size of PAD for Visualizer 
@@ -47,27 +53,120 @@ namespace NIKON2018
         /// 
         int MEASURMENT_SEQUESNCE = 1;
 
-        String FILE_name = "results.txt";
-        String FILE_LOC = "test_folder\results.txt";
+        String FILE_name = "results.txt";//not used  to verify 
+        String FILE_LOC = "test_folder\results.txt";//not used  to verify 
         String FILE_path;
 
-
+        string path1 = "c:\\temp";//folder lacation where setting and results are exported 
+        string path2 = "subdir\\default.dat";//folder lacation and naming of the exported file 
 
 
         public Form1()
         {
             InitializeComponent();
-            string path1 = "c:\\temp";
-            string path2 = "subdir\\default.dat";
+
 
             FILE_path = Path.Combine(path1, path2);
 
-            FOLDERS(); /// Create folders if not found
+            FOLDERS(); /// Create folders if not found used mainly first time after install and if by mistake someone deletes folders used by the programm 
 
 
 
 
             COMport.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
+
+            Load_Comm_settings();
+        
+            RESET_button.Visible = false;
+            Export_button.Visible = false;
+
+            if (Debug_without_RS232 == false)
+            {
+                button4.Visible = false;
+                label12.Visible = false;
+                label13.Visible = false;
+            }
+        }
+
+       
+        
+        
+        
+        /// Load Com Settings       
+
+           
+private void Load_Comm_settings()/// Load Com Settings 
+        {
+            IniFile ini = new IniFile("config/COMM_Settings.ini");
+          
+
+            // load COMM port
+
+            Port_Name = ini.IniReadValue("SC-112", "PORT_NUMBER");
+            //
+
+            // load and set Baud Rate
+            string Read_String = ini.IniReadValue("SC-112", "BAUD_RATE");        
+            Baud_Rate = Convert.ToInt32(Read_String);// load and set Baud Rate
+                                                          //
+
+            // load and set Data Bits
+            Read_String = ini.IniReadValue("SC-112", "DATA_BITS");
+            Port_DataBits = Convert.ToInt32(Read_String);// load and set Baud Rate
+            //
+
+            // load and set Parity
+            Read_String = ini.IniReadValue("SC-112", "PARITY");
+
+            if (Read_String == "Even")
+            {
+                COMport.Parity = Parity.Even;
+            }
+
+            if (Read_String == "None")
+            {
+                COMport.Parity = Parity.None;
+            }
+
+            if (Read_String == "Odd")
+            {
+                COMport.Parity = Parity.Odd;
+            }
+
+            if (Read_String == "Mark")
+            {
+                COMport.Parity = Parity.Mark;
+            }
+
+            if (Read_String == "Space")
+            {
+                COMport.Parity = Parity.Space;
+            }
+
+            //
+
+
+            // load and set Stop Bits
+            Read_String = ini.IniReadValue("SC-112", "STOP_BITS");
+
+            if (Read_String == "0")
+            {
+                COMport.StopBits = StopBits.None;
+            }
+
+            if (Read_String == "1")
+            {
+                COMport.StopBits = StopBits.One;
+            }
+
+            if (Read_String == "1.5")
+            {
+                COMport.StopBits = StopBits.OnePointFive;
+            }
+            if (Read_String == "2")
+            {
+                COMport.StopBits = StopBits.Two;
+            }
 
         }
 
@@ -76,7 +175,8 @@ namespace NIKON2018
             System.Drawing.Graphics graphicsObj;
 
             graphicsObj = this.CreateGraphics();
-            Rectangle window = new Rectangle(X - 3, Y - 3, VisualizerX_size + 6, VisualizerY_size + 6);
+            //  Rectangle window = new Rectangle(X - 3, Y - 3, VisualizerX_size + 6, VisualizerY_size + 6);
+            Rectangle window = new Rectangle(X_VIS_START-3,Y_VIS_START-3, VisualizerX_size + 6, VisualizerY_size + 6);
             Pen myPen = new Pen(Color.Black, 3);
 
             graphicsObj.DrawRectangle(myPen, window);
@@ -125,7 +225,7 @@ namespace NIKON2018
             }
 
 
-            path18 = "config/COM_Settings.ini";
+            path18 = "config/COMM_Settings.ini";
 
             if (File.Exists(path18))
             {
@@ -135,21 +235,34 @@ namespace NIKON2018
 
             else//create it 
             {
+                
 
                 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
-                IniFile ini = new IniFile("config/COM_Settings.ini");
+                IniFile ini = new IniFile("config/COMM_Settings.ini");
 
                 ini.IniWriteValue("Info Serial", "File info ", "//File format created by Charles Galea 2018.");
+              
                 ini.IniWriteValue("Info Serial", "File Created ", DateTime.Now.ToString());
 
-                ini.IniWriteValue("COMM SETTINGS", "PORT_NUMBER", "COM1");
-                ini.IniWriteValue("COMM SETTINGS", "BAUD_RATE", "4800");
-                ini.IniWriteValue("COMM SETTINGS", "PARITY", "None");
-                ini.IniWriteValue("COMM SETTINGS", "DATA_BITS", "8");
 
+                ini.IniWriteValue("SC-112", "Port info ", "//These are the settings used by Nikon SC-112 X,Y");
+                ini.IniWriteValue("SC-112", "PORT_NUMBER", "COM1");
+                ini.IniWriteValue("SC-112", "BAUD_RATE", "4800");
+                ini.IniWriteValue("SC-112", "PARITY", "None");
+                ini.IniWriteValue("SC-112", "DATA_BITS", "8");
+                ini.IniWriteValue("SC-112", "STOP_BITS", "2");
+
+                ini.IniWriteValue("Default", "Port info ", "//Default tab is used below to add future contraoller which has differant port settings");
+                ini.IniWriteValue("Default", "PORT_NUMBER", "COM1");
+                ini.IniWriteValue("Default", "BAUD_RATE", "4800");
+                ini.IniWriteValue("Default", "PARITY", "None");
+                ini.IniWriteValue("Default", "DATA_BITS", "8");
+                ini.IniWriteValue("Default", "STOP_BITS", "2");
 
                 MessageBox.Show("Please make sure you setup COM Port for the first time");
             }
+
+
         }
         private void port_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
@@ -222,23 +335,25 @@ namespace NIKON2018
             if (Debug_without_RS232 == false)
             {
                 //Local Variables 
-
+                if (COMport.IsOpen)
+                {
+                    COMport.Close();
+                }
                 //uncomment below to have selection 
                 //   string Port_Name = ComboBox_Available_SerialPorts.SelectedItem.ToString();    // Store the selected COM port name to "Port_Name" varaiable
                 //    int Baud_Rate = Convert.ToInt32(ComboBox_Standard_Baudrates.SelectedItem); // Convert the string "9600" to int32 9600
                 //Store the string in Textbox to variable "Data"
-                string Port_Name = "COM7";
-                int Baud_Rate = 4800;
+
                 //SerialPort COMport = new SerialPort(Port_Name, Baud_Rate, Parity.None, 8, StopBits.Two); //Create a new  SerialPort Object (defaullt setting -> 8N1)
                 COMport.Encoding = Encoding.ASCII;
                 COMport.PortName = Port_Name;
                 COMport.BaudRate = Baud_Rate;
-                COMport.Parity = Parity.None;
-                COMport.DataBits = 8;
+               /// COMport.Parity = Parity.None;
+                COMport.DataBits = Port_DataBits;
                 COMport.StopBits = StopBits.Two;
                 COMport.DtrEnable = true;
                 COMport.RtsEnable = true;
-
+                
                 try
                 {
 
@@ -293,6 +408,7 @@ namespace NIKON2018
             DO_Referance = true;
             MEASURMENT_SEQUESNCE = 0;
             Update_map22(0, 0, false);
+            Export_button.Visible = true;
         }
 
         private void REPLY_TO_NIKON()
@@ -863,6 +979,14 @@ namespace NIKON2018
         private void ComboBox_Rows_SelectionChangeCommitted(object sender, EventArgs e)
         {
             number_of_rows = int.Parse(ComboBox_Rows.SelectedItem.ToString());
+
+
+                RESET_button.Visible = true;
+                
+
+
+
+            
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -874,6 +998,15 @@ namespace NIKON2018
                 file2.Close();
             }
 
+            RESET_button.Visible = false;
+            Export_button.Visible = false;
+
+            position_number = 0;
+            column_number = 1;
+            row_number = 0;
+            Measurment_started = true;
+            DO_Referance = true;
+            MEASURMENT_SEQUESNCE = 0;
 
         }
 
@@ -1867,10 +2000,12 @@ namespace NIKON2018
 
                 Infolabel.Text = "Referance Point 1";
                 Column_number_lable.Text = column_number.ToString();
-              
+                Reset_Visualizer(X_VIS_START, Y_VIS_START, VisualizerX_size, VisualizerY_size, Color.Green);
                 VIS_Referance_Circle(number_of_rows); //update referance circle colours state
 
 
+
+                MEASURMENT_SEQUESNCE++;
             }
 
 
@@ -2026,11 +2161,33 @@ namespace NIKON2018
 
        }
 
+        private void toolStripMenuItem5_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void toolStripMenuItem7_Click(object sender, EventArgs e)
+        {
+            AboutBox1 a = new AboutBox1();
+            a.Show();
+        }
+
+        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        {
+            
+
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            Load_Comm_settings();
+        }
 
 
-      
-                        ////////////////////////
-                }
+
+
+        ////////////////////////
+    }
 
 
 
