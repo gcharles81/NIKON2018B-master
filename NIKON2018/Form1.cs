@@ -11,21 +11,32 @@ using System.IO.Ports;
 using Ini;
 using System.IO;
 
+
 namespace NIKON2018
 {
+   
+ 
+
     public partial class Form1 : Form
     {
 
+
+
+        NIKON2018.Comsettings NIKONSC112 = new NIKON2018.Comsettings();
+        NIKON2018.Comsettings OLYMPUS_STM6 = new NIKON2018.Comsettings();
+        NIKON2018.Comsettings NEW3 = new NIKON2018.Comsettings();
+
+        string Read_String;
         Boolean Debug_without_RS232 = false;//set to true to debug witout microscope connected 
         string Selected_Port_Baudrate;    //used for storing selected Baudrate and COMport,for displaying purposes 
-        string Port_Name = "";
+       public string Port_Name = "";
         int Baud_Rate = 0;
         int Port_DataBits = 0;
-
+        int Controller_type = 0;
         SerialPort COMport = new SerialPort();
         Boolean Have_message = false;
         String sRecv;
-
+        Boolean force_filecreation = false;
         int measurment_number = 0;
         int position_number = 0;
         int number_of_col = 1;
@@ -38,6 +49,15 @@ namespace NIKON2018
         Boolean DO_Referance = true;
         Boolean Pointmarks = true; //by default pointmarks radio button is set to checked on startup 
         Boolean Chipbond = false; //by default chipbond radio button is set to unchecked on startup 
+
+        Boolean Machine_type_set = false;
+        Boolean Serial_Number_set = false;
+        Boolean Engineer_name_set = false;
+        Boolean Rowshavebeenset = false;
+        String MC_type = "";
+        String SN_number = "";
+        String Engineer_name = "";
+
 
 
         /// <Visualizer_definition_sizes / >
@@ -53,19 +73,21 @@ namespace NIKON2018
         /// 
         int MEASURMENT_SEQUESNCE = 1;
 
-        String FILE_name = "results.txt";//not used  to verify 
-        String FILE_LOC = "test_folder\results.txt";//not used  to verify 
+      //  String FILE_name = "results.txt";//not used  to verify 
+     //   String FILE_LOC = "test_folder\results.txt";//not used  to verify 
         String FILE_path;
-
+        /*
         string path1 = "c:\\temp";//folder lacation where setting and results are exported 
         string path2 = "subdir\\default.dat";//folder lacation and naming of the exported file 
+        */
 
-
+        string path1 = "Measurments\\";
+        string path2 = "default.dat";
         public Form1()
         {
             InitializeComponent();
 
-
+            
             FILE_path = Path.Combine(path1, path2);
 
             FOLDERS(); /// Create folders if not found used mainly first time after install and if by mistake someone deletes folders used by the programm 
@@ -73,9 +95,10 @@ namespace NIKON2018
 
 
 
-            COMport.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
+           // COMport.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
+            Comsettings._COMport.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
 
-            Load_Comm_settings();
+            Load_main_settings();
         
             RESET_button.Visible = false;
             Export_button.Visible = false;
@@ -86,34 +109,31 @@ namespace NIKON2018
                 label12.Visible = false;
                 label13.Visible = false;
             }
+
+            
         }
 
        
         
         
         
-        /// Load Com Settings       
-
-           
-private void Load_Comm_settings()/// Load Com Settings 
+        //---------------------------------Load Com Settings for Nikon SC-112-------------------------------------------------//      
+        private void Load_NikonSC112_settings()
         {
             IniFile ini = new IniFile("config/COMM_Settings.ini");
-          
-
-            // load COMM port
 
             Port_Name = ini.IniReadValue("SC-112", "PORT_NUMBER");
-            //
+
 
             // load and set Baud Rate
-            string Read_String = ini.IniReadValue("SC-112", "BAUD_RATE");        
+            Read_String = ini.IniReadValue("SC-112", "BAUD_RATE");
             Baud_Rate = Convert.ToInt32(Read_String);// load and set Baud Rate
-                                                          //
+                                                     //
 
             // load and set Data Bits
             Read_String = ini.IniReadValue("SC-112", "DATA_BITS");
             Port_DataBits = Convert.ToInt32(Read_String);// load and set Baud Rate
-            //
+                                                         //
 
             // load and set Parity
             Read_String = ini.IniReadValue("SC-112", "PARITY");
@@ -143,6 +163,15 @@ private void Load_Comm_settings()/// Load Com Settings
                 COMport.Parity = Parity.Space;
             }
 
+            /*
+
+            else
+            {
+                MessageBox.Show("Invalid parity settings please note that only the following (Even,None,Odd,Mark,Space) are supported please update CommSettings file");
+            }
+
+    */
+            //
             //
 
 
@@ -167,8 +196,224 @@ private void Load_Comm_settings()/// Load Com Settings
             {
                 COMport.StopBits = StopBits.Two;
             }
+        }
+        //---------------------------------Load Com Settings for OLYMPUS OLYMPUS_STM6-------------------------------------------------// 
+
+        private void Load_OlympusSTM6_settings()
+        {
+            IniFile ini = new IniFile("config/COMM_Settings.ini");
+
+            Port_Name = ini.IniReadValue("Olympus-OLYMPUS_STM6", "PORT_NUMBER");
+            //
+
+            // load and set Baud Rate
+            Read_String = ini.IniReadValue("Olympus-OLYMPUS_STM6", "BAUD_RATE");
+            Baud_Rate = Convert.ToInt32(Read_String);// load and set Baud Rate
+                                                     //
+
+            // load and set Data Bits
+            Read_String = ini.IniReadValue("Olympus-OLYMPUS_STM6", "DATA_BITS");
+            Port_DataBits = Convert.ToInt32(Read_String);// load and set Baud Rate
+                                                         //
+
+            // load and set Parity
+            Read_String = ini.IniReadValue("Olympus-OLYMPUS_STM6", "PARITY");
+
+            if (Read_String == "Even")
+            {
+                COMport.Parity = Parity.Even;
+            }
+
+            if (Read_String == "None")
+            {
+                COMport.Parity = Parity.None;
+            }
+
+            if (Read_String == "Odd")
+            {
+                COMport.Parity = Parity.Odd;
+            }
+
+            if (Read_String == "Mark")
+            {
+                COMport.Parity = Parity.Mark;
+            }
+
+            if (Read_String == "Space")
+            {
+                COMport.Parity = Parity.Space;
+            }
+
+            else
+            {
+                MessageBox.Show("Invalid parity settings please note that only the following (Even,None,Odd,Mark,Space) are supported please update CommSettings file");
+            }
+            //
+
+
+            // load and set Stop Bits
+            Read_String = ini.IniReadValue("Olympus-OLYMPUS_STM6", "STOP_BITS");
+
+            if (Read_String == "0")
+            {
+                COMport.StopBits = StopBits.None;
+            }
+
+            if (Read_String == "1")
+            {
+                COMport.StopBits = StopBits.One;
+            }
+
+            if (Read_String == "1.5")
+            {
+                COMport.StopBits = StopBits.OnePointFive;
+            }
+            if (Read_String == "2")
+            {
+                COMport.StopBits = StopBits.Two;
+            }
+        }
+
+
+        //---------------------------------Load Com Settings for NEW3-------------------------------------------------// 
+        private void Load_NEW3_settings()
+        {
+            IniFile ini = new IniFile("config/COMM_Settings.ini");
+
+            Port_Name = ini.IniReadValue("Default", "PORT_NUMBER");
+            //
+
+            // load and set Baud Rate
+            Read_String = ini.IniReadValue("Default", "BAUD_RATE");
+            Baud_Rate = Convert.ToInt32(Read_String);// load and set Baud Rate
+                                                     //
+
+            // load and set Data Bits
+            Read_String = ini.IniReadValue("Default", "DATA_BITS");
+            Port_DataBits = Convert.ToInt32(Read_String);// load and set Baud Rate
+                                                         //
+
+            // load and set Parity
+            Read_String = ini.IniReadValue("Default", "PARITY");
+
+            if (Read_String == "Even")
+            {
+                COMport.Parity = Parity.Even;
+            }
+
+            if (Read_String == "None")
+            {
+                COMport.Parity = Parity.None;
+            }
+
+            if (Read_String == "Odd")
+            {
+                COMport.Parity = Parity.Odd;
+            }
+
+            if (Read_String == "Mark")
+            {
+                COMport.Parity = Parity.Mark;
+            }
+
+            if (Read_String == "Space")
+            {
+                COMport.Parity = Parity.Space;
+            }
+
+            
+           
+            //
+            //
+
+
+            // load and set Stop Bits
+            Read_String = ini.IniReadValue("Default", "STOP_BITS");
+
+            if (Read_String == "0")
+            {
+                COMport.StopBits = StopBits.None;
+            }
+
+            if (Read_String == "1")
+            {
+                COMport.StopBits = StopBits.One;
+            }
+
+            if (Read_String == "1.5")
+            {
+                COMport.StopBits = StopBits.OnePointFive;
+            }
+            if (Read_String == "2")
+            {
+                COMport.StopBits = StopBits.Two;
+            }
+        }
+
+        private void Load_main_settings()/// Load Com Settings 
+        {
+            IniFile ini = new IniFile("config/COMM_Settings.ini");
+
+            // load NIKONSC112 Type 
+
+            Read_String = ini.IniReadValue("Info Serial", "CONTROLLER");
+            Controller_type = Convert.ToInt32(Read_String);// load and set Baud Rate
+
+            // check debug mode 
+
+            Read_String = ini.IniReadValue("Info Serial", "OperationMode");// if value equals 0 means standard mode , 99 means debug mode 
+            int Tempval = Convert.ToInt32(Read_String);// load value
+
+            if (Tempval == 0)// if value equals 0 means standard mode , 99 means debug mode
+            {
+                Debug_without_RS232 = false;
+            }
+
+           else  if (Tempval == 99)// if value equals 0 means standard mode , 99 means debug mode
+            {
+                Debug_without_RS232 = true;
+            }
+
+            else
+            {
+            
+                    MessageBox.Show("Please set a valid OperationMode in the COMM settings file");
+               
+            }
+
+
+            // lets load comport dats according to what controller we have only if we sre not in debug mode if we use debug mode the following will be skipped 
+
+            if (Controller_type == 1 && Debug_without_RS232 == false)
+            {
+
+                // Load_NikonSC112_settings();
+                NIKONSC112.load_Settings("SC-112");
+              
+            }
+
+
+            else if (Controller_type == 2 && Debug_without_RS232 == false)
+            {
+                //  Load_OlympusSTM6_settings();
+                OLYMPUS_STM6.load_Settings("Olympus-STM6");
+            }
+
+
+            else if (Controller_type == 3 && Debug_without_RS232 == false)
+            {
+              //  Load_NEW3_settings();
+                NEW3.load_Settings("NEW3");
+
+            }
+
+            // Done loading controller comm pport data
+
+
+
 
         }
+        
 
         public void Visualizer_Border(int X, int Y)
         {
@@ -194,14 +439,20 @@ private void Load_Comm_settings()/// Load Com Settings
             System.IO.StreamWriter file2 = new System.IO.StreamWriter(FILE_path, true);
 
             file2.Write("NIKON 2018 FILE CREATED ON - ");
-            file2.WriteLine("Date_Time_Processed" + ",");
+            file2.WriteLine (DateTime.Now.ToString());
+            file2.Write("Machine,");
+            file2.WriteLine(MC_type);
+            file2.Write("Serial,");
+            file2.WriteLine(SN_number);
+            file2.Write("Engineer,");
+            file2.WriteLine(Engineer_name);
 
             file2.Close();
         }
         public void FOLDERS()
         {
 
-            String path18 = "test_folder";
+            String path18 = "Measurments";
 
             if (Directory.Exists(path18))
             {
@@ -227,134 +478,322 @@ private void Load_Comm_settings()/// Load Com Settings
 
             path18 = "config/COMM_Settings.ini";
 
-            if (File.Exists(path18))
+
+
+            if (File.Exists(path18) && force_filecreation == false)
             {
 
 
             }
 
-            else//create it 
+
+
+
+            else if (File.Exists(path18) && force_filecreation == true)//create it 
             {
-                
+                File.Delete(path18);
+
+                MessageBox.Show("gsudgfuzs");
 
                 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
                 IniFile ini = new IniFile("config/COMM_Settings.ini");
-
+                ini.IniWriteValue("Info Serial", "File Created ", DateTime.Now.ToString());
                 ini.IniWriteValue("Info Serial", "File info ", "//File format created by Charles Galea 2018.");
               
-                ini.IniWriteValue("Info Serial", "File Created ", DateTime.Now.ToString());
+               
+                ini.IniWriteValue("Info Serial", "CONTROLLER info 1", "//  1 = SC-112 Settings ,2 = Olympus-OLYMPUS_STM6 settings , 3 = NEW3 Settings ");
+                ini.IniWriteValue("Info Serial", "CONTROLLER info 2", "// Please choose correct controller type otherwise received data will not be recognized ");
 
 
-                ini.IniWriteValue("SC-112", "Port info ", "//These are the settings used by Nikon SC-112 X,Y");
+                ini.IniWriteValue("Info Serial", "CONTROLLER", "1"); //
+                ini.IniWriteValue("Info Serial", "OperationMode", "0");
+
+                ini.IniWriteValue("SC-112", "Port info ", "//These are the settings used by Nikon SC-112");
                 ini.IniWriteValue("SC-112", "PORT_NUMBER", "COM1");
                 ini.IniWriteValue("SC-112", "BAUD_RATE", "4800");
                 ini.IniWriteValue("SC-112", "PARITY", "None");
                 ini.IniWriteValue("SC-112", "DATA_BITS", "8");
                 ini.IniWriteValue("SC-112", "STOP_BITS", "2");
 
-                ini.IniWriteValue("Default", "Port info ", "//Default tab is used below to add future contraoller which has differant port settings");
-                ini.IniWriteValue("Default", "PORT_NUMBER", "COM1");
-                ini.IniWriteValue("Default", "BAUD_RATE", "4800");
-                ini.IniWriteValue("Default", "PARITY", "None");
-                ini.IniWriteValue("Default", "DATA_BITS", "8");
-                ini.IniWriteValue("Default", "STOP_BITS", "2");
+                ini.IniWriteValue("Olympus-OLYMPUS_STM6", "Port info ", "//These are the settings used by OLYMPUS OLYMPUS_STM6");
+                ini.IniWriteValue("Olympus-OLYMPUS_STM6", "PORT_NUMBER", "COM1");
+                ini.IniWriteValue("Olympus-OLYMPUS_STM6", "BAUD_RATE", "19200");
+                ini.IniWriteValue("Olympus-OLYMPUS_STM6", "PARITY", "None");
+                ini.IniWriteValue("Olympus-OLYMPUS_STM6", "DATA_BITS", "8");
+                ini.IniWriteValue("Olympus-OLYMPUS_STM6", "STOP_BITS", "2");
+
+
+                ini.IniWriteValue("NEW3", "Port info ", "//These are the settings used by please update information of controller later.");
+                ini.IniWriteValue("NEW3", "PORT_NUMBER", "COM1");
+                ini.IniWriteValue("NEW3", "BAUD_RATE", "19200");
+                ini.IniWriteValue("NEW3", "PARITY", "None");
+                ini.IniWriteValue("NEW3", "DATA_BITS", "8");
+                ini.IniWriteValue("NEW3", "STOP_BITS", "2");
+
 
                 MessageBox.Show("Please make sure you setup COM Port for the first time");
             }
 
+           
 
         }
         private void port_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
-            if (COMport.BytesToRead == 23) //i need only byte 113 so i use '==3'
+            if (Controller_type == 1)
             {
 
-
-                sRecv = COMport.ReadExisting();
-
-                Index_changed = true;
+                if (COMport.BytesToRead == 23) //SC-112 sends only 23 bytes
+                {
 
 
-                Have_message = true;
-                //   label1.Text = sRecv.ToString();
+                    sRecv = COMport.ReadExisting(); // Read port Dat and store in sRecv
+
+                    Index_changed = true;
+
+
+                    Have_message = true;// New message received YES = True
+                    
+                }
+
             }
 
+            if (Controller_type == 2) //olympus
+            {
+                if (COMport.BytesToRead == 82) //Olympus OLYMPUS_STM6 sends 82 bytes
+                {
+
+
+                    sRecv = COMport.ReadExisting();// Read port Dat and store in sRecv
+
+                    Index_changed = true;
+
+
+                    Have_message = true; // New message received YES = True
+                   
+                }
+
+            }
+
+
+            if (Controller_type == 3)
+            {
+
+                if (COMport.BytesToRead == 23) //SC-112 sends only 23 bytes
+                {
+
+
+                    sRecv = COMport.ReadExisting(); // Read port Dat and store in sRecv
+
+                    Index_changed = true;
+
+
+                    Have_message = true;// New message received YES = True
+
+                }
+
+            }
+
+        }
+        
+
+        private void Charles_Controller_handler()
+        {
+            //
+            string phrase;
+            string[] words;
+            String X;
+            String Y;
+            String X1;
+            String Y1;
+            float floatValueX;
+            float floatValueY;
+            //
+
+
+
+            if (Have_message) // if message received get it and parse it according to controller type 
+            {
+                switch (Controller_type) {
+
+                 case 1:
+                      
+                        phrase = sRecv.ToString();
+
+                        words = phrase.Split(',');
+
+                        X = words[0].ToString();
+                        Y = words[1].ToString();
+
+                        Xvalue_label.Text = X;
+                        Yvalue_label.Text = Y;
+
+                        floatValueX = float.Parse(X);
+                        floatValueY = float.Parse(Y);
+                        
+                        Index_Register2(floatValueX, floatValueY);
+                                                
+                        REPLY_TO_CONTROLLER();//lets reply SXY
+                        
+                        Have_message = false;
+                        Index_changed = true;
+
+                        break;
+
+                    case 2:
+
+                        string[] separators = { " ", "  ", "X", "Y", "Z" };
+                        
+                        phrase = sRecv.ToString();
+                        words = phrase.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+                        string Test32 = words[1].ToString();
+                   
+                        X1 = String.Empty;
+                        X1 += words[2].ToString();
+                        X1 += words[3].ToString();
+
+                        X = X1;
+
+                        string Test33 = words[2].ToString();
+                        string[] words3 = Test33.Split(' ');
+
+                        Y1 = String.Empty;
+                        Y1 += words[6].ToString();
+                        Y1 += words[7].ToString();
+
+
+                        Y = Y1;
+
+                        Xvalue_label.Text = X;
+                        Yvalue_label.Text = Y;
+
+                        floatValueX = float.Parse(X);
+                        floatValueY = float.Parse(Y);
+
+
+                        Index_Register2(floatValueX, floatValueY);
+
+                        Have_message = false;
+                        Index_changed = true;
+                        break;
+
+                    case 3:
+                        
+                        
+                        //for 3rd controllertype
+
+                        break;
+                    
+
+                    default:
+
+                    break;
+            }
+
+            }
+
+            else
+            {
+                //Do nothing 
+            }
 
         }
 
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            /*
-            if (Have_message)
+
+            if (Controller_type == 1)
             {
+         
 
-
-                string phrase = sRecv.ToString();
-
-                string[] words = phrase.Split(',');
-
-                String X = words[0].ToString();
-                String Y = words[1].ToString();
-
-                Xvalue_label.Text = X;
-                Yvalue_label.Text = Y;
-
-                float floatValueX = float.Parse(X);
-                float floatValueY = float.Parse(Y);
-
-
-                Index_Register2(floatValueX, floatValueY);
-
-
-
-                if (Debug_without_RS232 == false)
+                if (Have_message)
                 {
-                    REPLY_TO_NIKON();//lets reply SXY
+
+
+                    string phrase = sRecv.ToString();
+
+                    string[] words = phrase.Split(',');
+
+                    String X = words[0].ToString();
+                    String Y = words[1].ToString();
+
+                    Xvalue_label.Text = X;
+                    Yvalue_label.Text = Y;
+
+                    float floatValueX = float.Parse(X);
+                    float floatValueY = float.Parse(Y);
+
+
+                    Index_Register2(floatValueX, floatValueY);
+
+
+
+
+                    REPLY_TO_CONTROLLER();//lets reply SXY
+                    
+
+
+                    Have_message = false;
+                    Index_changed = true;
                 }
 
-            
-                Have_message = false;
-                Index_changed = true;
-            }
+                           }
 
-            */
-
-            ///// test for olimpus
-
-            if (Have_message)
+            else if (Controller_type == 2)
             {
+                ///// test for olimpus
 
-
-                string phrase = sRecv.ToString();
-
-                string[] words = phrase.Split(',');
-
-                String X = words[0].ToString();
-                String Y = words[1].ToString();
-
-                Xvalue_label.Text = X;
-                Yvalue_label.Text = Y;
-
-                float floatValueX = float.Parse(X);
-                float floatValueY = float.Parse(Y);
-
-
-                Index_Register2(floatValueX, floatValueY);
-
-
-                /*
-                if (Debug_without_RS232 == false)
+                if (Have_message)
                 {
-                    REPLY_TO_NIKON();//lets reply SXY
-                }
-                */
 
-                Have_message = false;
-                Index_changed = true;
+
+                    string[] separators = { " ", "  ", "X", "Y", "Z" };
+
+
+
+
+                    string phrase = sRecv.ToString();
+                    string[] words = phrase.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+                    string Test32 = words[1].ToString();
+
+              
+
+
+                    String HHH = String.Empty;
+                    HHH += words[2].ToString();
+                    HHH += words[3].ToString();
+
+              
+                    String X = HHH;
+
+                    string Test33 = words[2].ToString();
+                    string[] words3 = Test33.Split(' ');
+
+                    String HHH2 = String.Empty;
+                    HHH2 += words[6].ToString();
+                    HHH2 += words[7].ToString();
+
+
+                    String Y = HHH2;
+
+                    Xvalue_label.Text = X;
+                    Yvalue_label.Text = Y;
+
+                    float floatValueX = float.Parse(X);
+                    float floatValueY = float.Parse(Y);
+
+
+                    Index_Register2(floatValueX, floatValueY);
+
+                    Have_message = false;
+                    Index_changed = true;
+                }
             }
+
+
         }
-
         private void button1_Click(object sender, EventArgs e)
         {
 
@@ -371,21 +810,19 @@ private void Load_Comm_settings()/// Load Com Settings
                 {
                     COMport.Close();
                 }
-                //uncomment below to have selection 
-                //   string Port_Name = ComboBox_Available_SerialPorts.SelectedItem.ToString();    // Store the selected COM port name to "Port_Name" varaiable
-                //    int Baud_Rate = Convert.ToInt32(ComboBox_Standard_Baudrates.SelectedItem); // Convert the string "9600" to int32 9600
-                //Store the string in Textbox to variable "Data"
-
-                //SerialPort COMport = new SerialPort(Port_Name, Baud_Rate, Parity.None, 8, StopBits.Two); //Create a new  SerialPort Object (defaullt setting -> 8N1)
+               
+                //charles 3rd june 18 please check below not sure if needed since we are loading settings from file * might be below is over writing the settings 
+            /*
                 COMport.Encoding = Encoding.ASCII;
-                COMport.PortName = Port_Name;
-                COMport.BaudRate = Baud_Rate;
-               /// COMport.Parity = Parity.None;
-                COMport.DataBits = Port_DataBits;
-                COMport.StopBits = StopBits.Two;
+           //     COMport.PortName = _Port_Name;
+                COMport.PortName = NIKONSC112._Port_Name; ////not neded testing
+                COMport.BaudRate = NIKONSC112._baud;
+                /// COMport.Parity = Parity.None;
+                COMport.DataBits = NIKONSC112._DataBits;//Port_DataBits;
+                COMport.StopBits =  StopBits.Two;
                 COMport.DtrEnable = true;
                 COMport.RtsEnable = true;
-                
+               */ 
                 try
                 {
 
@@ -422,6 +859,64 @@ private void Load_Comm_settings()/// Load Com Settings
             }
         }
 
+        private void Serial_connect2()
+        {
+
+            if (Debug_without_RS232 == false)
+            {
+                //Local Variables 
+                if (Comsettings._COMport.IsOpen)
+                {
+                    Comsettings._COMport.Close();
+                }
+
+                //charles 3rd june 18 please check below not sure if needed since we are loading settings from file * might be below is over writing the settings 
+                /*
+                    COMport.Encoding = Encoding.ASCII;
+               //     COMport.PortName = _Port_Name;
+                    COMport.PortName = NIKONSC112._Port_Name; ////not neded testing
+                    COMport.BaudRate = NIKONSC112._baud;
+                    /// COMport.Parity = Parity.None;
+                    COMport.DataBits = NIKONSC112._DataBits;//Port_DataBits;
+                    COMport.StopBits =  StopBits.Two;
+                    COMport.DtrEnable = true;
+                    COMport.RtsEnable = true;
+                   */
+                try
+                {
+
+                    Comsettings._COMport.Open();
+                }
+                #region  
+                catch (UnauthorizedAccessException SerialException) //exception that is thrown when the operating system denies access 
+                {
+                    MessageBox.Show(SerialException.ToString());
+
+                    Comsettings._COMport.Close();
+                }
+
+                catch (System.IO.IOException SerialException)     // An attempt to set the state of the underlying port failed
+                {
+                    MessageBox.Show(SerialException.ToString());
+
+                    Comsettings._COMport.Close();
+                }
+
+                catch (InvalidOperationException SerialException) // The specified port on the current instance of the SerialPort is already open
+                {
+                    MessageBox.Show(SerialException.ToString());
+
+                    Comsettings._COMport.Close();
+                }
+
+                catch //Any other ERROR
+                {
+                    MessageBox.Show("ERROR in Opening Serial PORT -- UnKnown ERROR");
+                    Comsettings._COMport.Close();
+                }
+                #endregion
+            }
+        }
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -430,9 +925,9 @@ private void Load_Comm_settings()/// Load Com Settings
 
         private void RESET_button_Click(object sender, EventArgs e)
         {
-            Serial_connect();
+            Serial_connect2();
             Create_file();
-            REPLY_TO_NIKON();
+            REPLY_TO_CONTROLLER();
             position_number = 0;
             column_number = 1;
             row_number = 0;
@@ -443,21 +938,99 @@ private void Load_Comm_settings()/// Load Com Settings
             Export_button.Visible = true;
         }
 
-        private void REPLY_TO_NIKON()
+        private void REPLY_TO_CONTROLLER_UNUSED()// replaced with new void 
         {
-            //RESET_position_number();
-
-            if (COMport.IsOpen == true)
+            if (Debug_without_RS232 == false && Controller_type == 1)
             {
-                String testStr = "SXY\r\n"; // Ascii "53 58 59 0D 0A"
-                byte[] buf = System.Text.Encoding.UTF8.GetBytes(testStr);
-                COMport.Write(buf, 0, buf.Length);
+                
+
+                if (COMport.IsOpen == true)
+                {
+                    String testStr = "SXY\r\n"; // Ascii "53 58 59 0D 0A"
+                    byte[] buf = System.Text.Encoding.UTF8.GetBytes(testStr);
+                    COMport.Write(buf, 0, buf.Length);
+                }
+
+                else
+                {
+                    //Do nothng
+                }
             }
 
             else
             {
-                //Do nothng
+                // Do Nothing 
             }
+
+        }
+
+
+        private void REPLY_TO_CONTROLLER()
+        {
+            if (Debug_without_RS232 == false && Controller_type == 1)
+            {
+
+                switch (Controller_type)
+                {
+
+
+                    case 1:     //NIKON SC-112
+
+                        if (COMport.IsOpen == true)
+                        {
+                            String testStr = "SXY\r\n"; // Ascii "53 58 59 0D 0A"
+                            byte[] buf = System.Text.Encoding.UTF8.GetBytes(testStr);
+                            COMport.Write(buf, 0, buf.Length);
+                        }
+
+                        else
+                        {
+                            //Do nothng
+                        }
+
+                        break;
+
+
+                    case 2: //OLYMPUR OLYMPUS_STM6
+
+                        // for controller OLYMPUS_STM6 no need to acknoledge the return we we will not reply 
+
+                        break;
+
+
+                    case 3: //NEW 
+
+                        if (COMport.IsOpen == true)
+                        {
+                            String testStr = "SXY\r\n"; // Ascii "53 58 59 0D 0A"
+                            byte[] buf = System.Text.Encoding.UTF8.GetBytes(testStr);
+                            COMport.Write(buf, 0, buf.Length);
+                        }
+
+                        else
+                        {
+                            //Do nothng
+                        }
+
+                        break;
+
+
+                    default:
+
+
+                        break;
+
+                }
+            }
+
+
+            else
+            {
+                // Do Nothing 
+            }
+
+
+
         }
 
 
@@ -465,11 +1038,16 @@ private void Load_Comm_settings()/// Load Com Settings
         private void button4_Click(object sender, EventArgs e)//Only used for debugging 
         {
 
-            if (Debug_without_RS232)
+            if (Debug_without_RS232 && Controller_type == 1)
             {
                 sRecv = "0.2003,0.1019";
                 Index_changed = true;
                 Have_message = true;
+            }
+
+            else if (Debug_without_RS232 && Controller_type == 2)
+            {
+                MessageBox.Show("Debug mode only possible with NIKONSC112 type1 , please change type in settings file");
             }
         }
 
@@ -555,10 +1133,10 @@ private void Load_Comm_settings()/// Load Com Settings
 
 
                 Pen ASDX = new Pen(Color.Blue, 4);
-                Point point1 = new Point((Chip_Start_Corner_X - 8 + Chipsize), (Chip_Start_Corner_Y));
-                Point point2 = new Point((Chip_Start_Corner_X + 8 + Chipsize), (Chip_Start_Corner_Y));
-                Point point3 = new Point((Chip_Start_Corner_X + Chipsize), (Chip_Start_Corner_Y - 8));
-                Point point4 = new Point((Chip_Start_Corner_X + Chipsize), (Chip_Start_Corner_Y + 8));
+                Point point1 = new Point((Chip_Start_Corner_X - 8 + Chipsize), (Chip_Start_Corner_Y + Chipsize));
+                Point point2 = new Point((Chip_Start_Corner_X + 8 + Chipsize), (Chip_Start_Corner_Y + Chipsize));
+                Point point3 = new Point((Chip_Start_Corner_X + Chipsize), (Chip_Start_Corner_Y - 8 + Chipsize));
+                Point point4 = new Point((Chip_Start_Corner_X + Chipsize), (Chip_Start_Corner_Y + 8 + Chipsize));
                 graphicsObj.DrawLine(ASDX, point1, point2);
                 graphicsObj.DrawLine(ASDX, point3, point4);
             }
@@ -631,9 +1209,9 @@ private void Load_Comm_settings()/// Load Com Settings
 
 
                 Graphics myGraphics = base.CreateGraphics();
-                // Pen h = new Pen(Color.Aqua, 2);
+              
                 myGraphics.FillEllipse(Brushes.AliceBlue, Xstart - 5, Ystart - 5, 10, 10);
-                // myGraphics.DrawEllipse(h, Xstart - 3, Ystart - 3, 6, 6);
+         
                 myGraphics.Dispose();
             }
 
@@ -1013,7 +1591,7 @@ private void Load_Comm_settings()/// Load Com Settings
             number_of_rows = int.Parse(ComboBox_Rows.SelectedItem.ToString());
 
 
-                RESET_button.Visible = true;
+            Rowshavebeenset = true;
                 
 
 
@@ -1029,6 +1607,15 @@ private void Load_Comm_settings()/// Load Com Settings
                 System.IO.StreamWriter file2 = new System.IO.StreamWriter(FILE_path, true);
                 file2.Close();
             }
+
+            Engineer_name_set = false;
+            Serial_Number_set = false;
+            Machine_type_set = false;
+            Rowshavebeenset = false;
+            textBox2.Clear();
+            textBox1.Clear();
+           ////later have to clear also myhine type 
+
 
             RESET_button.Visible = false;
             Export_button.Visible = false;
@@ -1062,380 +1649,7 @@ private void Load_Comm_settings()/// Load Com Settings
 
         }
 
-
-        /*
-
-        private void Update_map2(float x, float y, Boolean status)
-        {
-
-
-            if (Pointmarks && status)
-            {
-
-                Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
-
-                Column_number_lable.Text = column_number.ToString();
-
-                switch (MEASURMENT_SEQUESNCE)
-                {
-
-               
-
-                    case 0:
-
-                        Infolabel.Text = "Referance Point 1";
-
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MEASURMENT_SEQUESNCE++;
-
-                        break;
-
-
-                    case 1:
-                        Infolabel.Text = "Referance Point 2";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-
-                        break;
-                    case 2:
-                        Infolabel.Text = "Referance Point 3";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        DO_Referance = false;
-                        break;
-
-
-                    case 3:
-                        Infolabel.Text = "Point Mark 1";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        break;
-
-                    case 4:
-                        Infolabel.Text = "Point Mark 2";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        break;
-
-                    case 5:
-                        Infolabel.Text = "Point Mark 3";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        break;
-
-                    case 6:
-
-
-                        Infolabel.Text = "Point Mark 4";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        break;
-
-                    case 7:
-
-
-
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        break;
-
-
-                    default:
-                      
-                        break;
-
-                }
-            }
-
-            else if (Pointmarks && status == false)
-            {
-
-                Infolabel.Text = "Referance Point 1";
-                Column_number_lable.Text = column_number.ToString();
-                MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                //    testwrite2(x, y, MEASURMENT_SEQUESNCE ); 
-                MEASURMENT_SEQUESNCE++;
-
-            }
-
-
-
-            if (Chipbond && status)
-            {
-
-
-                Reset_Visualizer(X_VIS_START - 3, Y_VIS_START - 65, VisualizerX_size, VisualizerY_size, Color.Green);
-
-                Column_number_lable.Text = column_number.ToString();
-
-                switch (MEASURMENT_SEQUESNCE)
-                {
-
-             
-
-                    case 0:
-
-                        Infolabel.Text = "Referance Point 1";
-
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MEASURMENT_SEQUESNCE++;
-
-                        break;
-
-
-                    case 1:
-                        Infolabel.Text = "Referance Point 2";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-
-                        break;
-                    case 2:
-                        Infolabel.Text = "Referance Point 3";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        DO_Referance = false;
-                        break;
-
-
-                    case 3:
-                        Infolabel.Text = "Chip 1 Top Left corner";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        break;
-
-                    case 4:
-                        Infolabel.Text = "Chip 1 Top Right corner";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        break;
-
-                    case 5:
-                        Infolabel.Text = "Chip 2 Top Left corner";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        break;
-                    case 6:
-                        Infolabel.Text = "Chip 2 Top Right corner";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        break;
-                    case 7:
-                        Infolabel.Text = "Chip 3 Top Left corner";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        break;
-
-                    case 8:
-                        Infolabel.Text = "Chip 3 Top Right corner";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        break;
-                    case 9:
-
-
-                        Infolabel.Text = "Chip 4 Top Left corner";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        break;
-
-                    case 10:
-
-
-                        Infolabel.Text = "Chip 4 Top Right corner";
-                        MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                        MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 65, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL_2(X_VIS_START, Y_VIS_START + 130, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        Draw_pad_border(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-
-                        MY_PAD1_FILL(X_VIS_START, Y_VIS_START + 195, RECT_VIS_SIZE, RECT_VIS_SIZE, System.Drawing.Color.Red);
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        break;
-
-
-                    case 11:
-
-
-
-                        testwrite2(x, y, MEASURMENT_SEQUESNCE);
-                        MEASURMENT_SEQUESNCE++;
-                        break;
-
-
-                    default:
-                        //  MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, false); ///true set Black  77 false set YELLOW
-                        break;
-
-                }
-            }
-
-            else if (Chipbond && status == false)
-            {
-
-                Infolabel.Text = "Referance Point 1";
-                Column_number_lable.Text = column_number.ToString();
-                MY_REF_CRCL_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW
-                MY_REF_POINT_FILL(X_VIS_START, Y_VIS_START - 65, 60, 60, true); ///true set Black  77 false set YELLOW 
-                MEASURMENT_SEQUESNCE++;
-
-            }
-
-        }
-        */
+        
         public void Index_Register2(float x, float y)
         {
 
@@ -1732,12 +1946,7 @@ private void Load_Comm_settings()/// Load Com Settings
         //
     }
 
-        private void Show_Chip_Right_Corner(Boolean state,int index)
-        {
-
-
-
-        }
+ 
         private void VIS_TESTREW_CHIPBOND(int NUMber_ROWS, int Sequence)
         {
 
@@ -2095,7 +2304,7 @@ private void Load_Comm_settings()/// Load Com Settings
                         break;
 
                     case 4:
-                        Infolabel.Text = "Chip 1 Top Right corner";
+                        Infolabel.Text = "Chip 1 Bottom Right corner";
                         VIS_Referance_Circle(number_of_rows); //update referance circle colours state
                         VIS_TESTREW_CHIPBOND(number_of_rows, MEASURMENT_SEQUESNCE);
                        
@@ -2112,7 +2321,7 @@ private void Load_Comm_settings()/// Load Com Settings
                        MEASURMENT_SEQUESNCE++;
                        break;
                    case 6:
-                       Infolabel.Text = "Chip 2 Top Right corner";
+                       Infolabel.Text = "Chip 2 Bottom Right corner";
                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
                         VIS_TESTREW_CHIPBOND(number_of_rows, MEASURMENT_SEQUESNCE);
                        
@@ -2129,7 +2338,7 @@ private void Load_Comm_settings()/// Load Com Settings
                        break;
 
                    case 8:
-                       Infolabel.Text = "Chip 3 Top Right corner";
+                       Infolabel.Text = "Chip 3 Bottom Right corner";
                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
                         VIS_TESTREW_CHIPBOND(number_of_rows, MEASURMENT_SEQUESNCE);
                        
@@ -2152,7 +2361,7 @@ private void Load_Comm_settings()/// Load Com Settings
                    case 10:
 
 
-                       Infolabel.Text = "Chip 4 Top Right corner";
+                       Infolabel.Text = "Chip 4 Bottom Right corner";
 
                        VIS_Referance_Circle(number_of_rows); //update referance circle colours state
                         VIS_TESTREW_CHIPBOND(number_of_rows, MEASURMENT_SEQUESNCE);
@@ -2204,21 +2413,115 @@ private void Load_Comm_settings()/// Load Com Settings
             a.Show();
         }
 
-        private void radioButton2_CheckedChanged(object sender, EventArgs e)
-        {
-            
 
-        }
 
         private void button1_Click_1(object sender, EventArgs e)
         {
-            Load_Comm_settings();
+            Load_main_settings();
         }
 
 
 
 
-        ////////////////////////
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            if (Engineer_name_set && Serial_Number_set && Machine_type_set && Rowshavebeenset)
+            {
+                RESET_button.Visible = true;
+            }
+
+
+            else
+            {
+                RESET_button.Visible = false;
+            }
+        }
+
+        private void button1_Click_2(object sender, EventArgs e)
+        {
+
+            if (textBox1.Text.Trim() == string.Empty)
+            {
+                MessageBox.Show("Please enter machine SN");
+                return; // return because we don't want to run normal code of buton click
+            }
+
+
+            if (textBox1.Text.Length <= 8 )
+            {
+                MessageBox.Show("Machine SN too short please correct");
+                return; // return because we don't want to run normal code of buton click
+            }
+
+            if (textBox2.Text.Trim() == string.Empty)
+            {
+                MessageBox.Show("Please enter Engineer Name");
+                return; // return because we don't want to run normal code of buton click
+            }
+
+            if (Rowshavebeenset)
+            {
+
+            
+
+                MC_type = comboBox1.SelectedItem.ToString();
+
+                Machine_type_set = true;
+
+                SN_number = textBox1.Text.ToString();
+
+                Serial_Number_set = true;
+
+                Engineer_name = textBox2.Text.ToString();
+
+                Engineer_name_set = true;
+
+            }
+
+            else
+            {
+                MessageBox.Show("Please set number of rows");
+            }
+        }
+
+
+
+
+
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+
+
+
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+
+
+            NIKONSC112._baud = 9;
+            OLYMPUS_STM6._baud = 76;
+            NEW3._baud = 765;
+
+            
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
 

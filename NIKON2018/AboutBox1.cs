@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+//using System.Threading;//.Tasks;
 using System.Windows.Forms;
 
 namespace NIKON2018
@@ -19,7 +20,7 @@ namespace NIKON2018
             this.labelVersion.Text = String.Format("Version {0}", AssemblyVersion);
             this.labelCopyright.Text = AssemblyCopyright;
         
-            this.textBoxDescription.Text = AssemblyDescription;
+           
         }
 
         #region Assembly Attribute Accessors
@@ -101,5 +102,10 @@ namespace NIKON2018
             }
         }
         #endregion
+
+        private void tableLayoutPanel_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }

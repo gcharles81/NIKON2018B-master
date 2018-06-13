@@ -121,7 +121,7 @@
   <data name="logoPictureBox.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAgMAAALUCAIAAAAZgqaXAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAGYktHRAAAAAAAAPlDu38AAP+TSURBVHhebP33jyTbtueH
+        YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAAAGYktHRAAAAAAAAPlDu38AAP+TSURBVHhebP33jyTbtueH
         HYAz93SX9957X+lNZHgfkd5nlvdV3V1VXd61PaePuffNvBnOvEdSQxAakZBIWRAiAQGCfhAggD/qf9J3
         7ajqc+5Qhe/siYyMzOpb97712d+99lr7hzf5+FEuvpOKrjuhmukva6s5eSUlLFuxOSMyowZnlOCCGlrW
         ItCKHPJL4ZASjWjxmMZzMs9JfFwWOEUUZFmRVV3RDFUzNEjVNUVXJFUSFZ6XuYQU58Q4J8S5BH4EQZAk
@@ -14879,8 +14879,5 @@
         0pQE2ni7cMYfzioSTGFARfOBKEkQCpcpNfdUMACvoGBwhwQaBoQECgO7uMlH4jxqTc7dJAkSuN/Nc2Bq
         svT/ALUxgcVsW5UiAAAAAElFTkSuQmCC
 </value>
-  </data>
-  <data name="textBoxDescription.Text" xml:space="preserve">
-    <value>This program is used to collect measurment dat afrom Nikon Microscope used for Point Marks &amp; Chip Band accuracy qualification for 2009 SSI / FS machines ,Please note programm is still a pre release version and if any issue is encountered please contact Charles Galea on phone 5669  or email charles.galea@besi.com </value>
   </data>
 </root>
