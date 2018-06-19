@@ -14,21 +14,19 @@ using System.IO;
 
 namespace NIKON2018
 {
-   
- 
+
+    
 
     public partial class Form1 : Form
     {
 
+        public static String FILE_path_HELP;
 
 
-        NIKON2018.Comsettings NIKONSC112 = new NIKON2018.Comsettings();
-        NIKON2018.Comsettings OLYMPUS_STM6 = new NIKON2018.Comsettings();
-        NIKON2018.Comsettings NEW3 = new NIKON2018.Comsettings();
 
         string Read_String;
         Boolean Debug_without_RS232 = false;//set to true to debug witout microscope connected 
-        string Selected_Port_Baudrate;    //used for storing selected Baudrate and COMport,for displaying purposes 
+  
        public string Port_Name = "";
         int Baud_Rate = 0;
         int Port_DataBits = 0;
@@ -37,13 +35,14 @@ namespace NIKON2018
         Boolean Have_message = false;
         String sRecv;
         Boolean force_filecreation = false;
+       
         int measurment_number = 0;
         int position_number = 0;
         int number_of_col = 1;
         int number_of_rows = 1;
         int column_number = 1;
         int row_number = 0;
-        
+      
         Boolean Index_changed = false;
         Boolean Measurment_started = false;
         Boolean DO_Referance = true;
@@ -73,30 +72,34 @@ namespace NIKON2018
         /// 
         int MEASURMENT_SEQUESNCE = 1;
 
-      //  String FILE_name = "results.txt";//not used  to verify 
-     //   String FILE_LOC = "test_folder\results.txt";//not used  to verify 
+
         String FILE_path;
-        /*
-        string path1 = "c:\\temp";//folder lacation where setting and results are exported 
-        string path2 = "subdir\\default.dat";//folder lacation and naming of the exported file 
-        */
+
+       
+
 
         string path1 = "Measurments\\";
         string path2 = "default.dat";
+
+        string path3A = "config\\";
+        string path4A = "NIKON2018 Application.pdf";
+
         public Form1()
         {
             InitializeComponent();
 
             
             FILE_path = Path.Combine(path1, path2);
-
+            FILE_path_HELP = Path.Combine(path3A, path4A);
             FOLDERS(); /// Create folders if not found used mainly first time after install and if by mistake someone deletes folders used by the programm 
 
+            if (File.Exists(@"NIKON2018 Application.pdf") == false)
+            {
+                File.Copy(@"Resources\NIKON2018 Application.pdf", @"NIKON2018 Application.pdf");
+            }
 
-
-
-           // COMport.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
-            Comsettings._COMport.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
+            COMport.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
+         
 
             Load_main_settings();
         
@@ -113,30 +116,25 @@ namespace NIKON2018
             
         }
 
-       
-        
-        
-        
-        //---------------------------------Load Com Settings for Nikon SC-112-------------------------------------------------//      
-        private void Load_NikonSC112_settings()
+        public void load_Settings(string controller_name)
         {
-            IniFile ini = new IniFile("config/COMM_Settings.ini");
+           IniFile ini = new IniFile("config/COMM_Settings.ini");
 
-            Port_Name = ini.IniReadValue("SC-112", "PORT_NUMBER");
+            Port_Name = ini.IniReadValue(controller_name, "PORT_NUMBER");
 
 
             // load and set Baud Rate
-            Read_String = ini.IniReadValue("SC-112", "BAUD_RATE");
+            Read_String = ini.IniReadValue(controller_name, "BAUD_RATE");
             Baud_Rate = Convert.ToInt32(Read_String);// load and set Baud Rate
-                                                     //
+                                                 //
 
             // load and set Data Bits
-            Read_String = ini.IniReadValue("SC-112", "DATA_BITS");
+            Read_String = ini.IniReadValue(controller_name, "DATA_BITS");
             Port_DataBits = Convert.ToInt32(Read_String);// load and set Baud Rate
-                                                         //
+                                                     //
 
             // load and set Parity
-            Read_String = ini.IniReadValue("SC-112", "PARITY");
+            Read_String = ini.IniReadValue(controller_name, "PARITY");
 
             if (Read_String == "Even")
             {
@@ -163,20 +161,71 @@ namespace NIKON2018
                 COMport.Parity = Parity.Space;
             }
 
-            /*
+        }
+
+
+        /*
+
+        //---------------------------------Load Com Settings for Nikon NIKON-SC-112-------------------------------------------------//      
+        private void Load_NikonSC112_settings()
+        {
+            IniFile ini = new IniFile("config/COMM_Settings.ini");
+
+            Port_Name = ini.IniReadValue("NIKON-SC-112", "PORT_NUMBER");
+
+
+            // load and set Baud Rate
+            Read_String = ini.IniReadValue("NIKON-SC-112", "BAUD_RATE");
+            Baud_Rate = Convert.ToInt32(Read_String);// load and set Baud Rate
+                                                     //
+
+            // load and set Data Bits
+            Read_String = ini.IniReadValue("NIKON-SC-112", "DATA_BITS");
+            Port_DataBits = Convert.ToInt32(Read_String);// load and set Baud Rate
+                                                         //
+
+            // load and set Parity
+            Read_String = ini.IniReadValue("NIKON-SC-112", "PARITY");
+
+            if (Read_String == "Even")
+            {
+                COMport.Parity = Parity.Even;
+            }
+
+            if (Read_String == "None")
+            {
+                COMport.Parity = Parity.None;
+            }
+
+            if (Read_String == "Odd")
+            {
+                COMport.Parity = Parity.Odd;
+            }
+
+            if (Read_String == "Mark")
+            {
+                COMport.Parity = Parity.Mark;
+            }
+
+            if (Read_String == "Space")
+            {
+                COMport.Parity = Parity.Space;
+            }
+
+           
 
             else
             {
                 MessageBox.Show("Invalid parity settings please note that only the following (Even,None,Odd,Mark,Space) are supported please update CommSettings file");
             }
 
-    */
+   
             //
             //
 
 
             // load and set Stop Bits
-            Read_String = ini.IniReadValue("SC-112", "STOP_BITS");
+            Read_String = ini.IniReadValue("NIKON-SC-112", "STOP_BITS");
 
             if (Read_String == "0")
             {
@@ -197,27 +246,27 @@ namespace NIKON2018
                 COMport.StopBits = StopBits.Two;
             }
         }
-        //---------------------------------Load Com Settings for OLYMPUS OLYMPUS_STM6-------------------------------------------------// 
+        //---------------------------------Load Com Settings for OLYMPUS Olympus-STM6-------------------------------------------------// 
 
         private void Load_OlympusSTM6_settings()
         {
             IniFile ini = new IniFile("config/COMM_Settings.ini");
 
-            Port_Name = ini.IniReadValue("Olympus-OLYMPUS_STM6", "PORT_NUMBER");
+            Port_Name = ini.IniReadValue("Olympus-STM6", "PORT_NUMBER");
             //
 
             // load and set Baud Rate
-            Read_String = ini.IniReadValue("Olympus-OLYMPUS_STM6", "BAUD_RATE");
+            Read_String = ini.IniReadValue("Olympus-STM6", "BAUD_RATE");
             Baud_Rate = Convert.ToInt32(Read_String);// load and set Baud Rate
                                                      //
 
             // load and set Data Bits
-            Read_String = ini.IniReadValue("Olympus-OLYMPUS_STM6", "DATA_BITS");
+            Read_String = ini.IniReadValue("Olympus-STM6", "DATA_BITS");
             Port_DataBits = Convert.ToInt32(Read_String);// load and set Baud Rate
                                                          //
 
             // load and set Parity
-            Read_String = ini.IniReadValue("Olympus-OLYMPUS_STM6", "PARITY");
+            Read_String = ini.IniReadValue("Olympus-STM6", "PARITY");
 
             if (Read_String == "Even")
             {
@@ -252,7 +301,7 @@ namespace NIKON2018
 
 
             // load and set Stop Bits
-            Read_String = ini.IniReadValue("Olympus-OLYMPUS_STM6", "STOP_BITS");
+            Read_String = ini.IniReadValue("Olympus-STM6", "STOP_BITS");
 
             if (Read_String == "0")
             {
@@ -275,8 +324,8 @@ namespace NIKON2018
         }
 
 
-        //---------------------------------Load Com Settings for NEW3-------------------------------------------------// 
-        private void Load_NEW3_settings()
+        //---------------------------------Load Com Settings for NIKON-SC-113-------------------------------------------------// 
+        private void Load_SC_113_settings()
         {
             IniFile ini = new IniFile("config/COMM_Settings.ini");
 
@@ -349,7 +398,7 @@ namespace NIKON2018
                 COMport.StopBits = StopBits.Two;
             }
         }
-
+        */
         private void Load_main_settings()/// Load Com Settings 
         {
             IniFile ini = new IniFile("config/COMM_Settings.ini");
@@ -388,7 +437,7 @@ namespace NIKON2018
             {
 
                 // Load_NikonSC112_settings();
-                NIKONSC112.load_Settings("SC-112");
+                load_Settings("NIKON-SC-112");
               
             }
 
@@ -396,14 +445,14 @@ namespace NIKON2018
             else if (Controller_type == 2 && Debug_without_RS232 == false)
             {
                 //  Load_OlympusSTM6_settings();
-                OLYMPUS_STM6.load_Settings("Olympus-STM6");
+                load_Settings("Olympus-STM6");
             }
 
 
             else if (Controller_type == 3 && Debug_without_RS232 == false)
             {
-              //  Load_NEW3_settings();
-                NEW3.load_Settings("NEW3");
+              //  Load_NIKON-SC-113_settings();
+                load_Settings("NIKON-SC-113");
 
             }
 
@@ -489,11 +538,11 @@ namespace NIKON2018
 
 
 
-            else if (File.Exists(path18) && force_filecreation == true)//create it 
+             if (File.Exists(path18) == false )//create it 
             {
                 File.Delete(path18);
 
-                MessageBox.Show("gsudgfuzs");
+               
 
                 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
                 IniFile ini = new IniFile("config/COMM_Settings.ini");
@@ -501,34 +550,34 @@ namespace NIKON2018
                 ini.IniWriteValue("Info Serial", "File info ", "//File format created by Charles Galea 2018.");
               
                
-                ini.IniWriteValue("Info Serial", "CONTROLLER info 1", "//  1 = SC-112 Settings ,2 = Olympus-OLYMPUS_STM6 settings , 3 = NEW3 Settings ");
+                ini.IniWriteValue("Info Serial", "CONTROLLER info 1", "//  1 = NIKON-SC-112 Settings ,2 = Olympus-Olympus-STM6 settings , 3 = NIKON-SC-113 Settings ");
                 ini.IniWriteValue("Info Serial", "CONTROLLER info 2", "// Please choose correct controller type otherwise received data will not be recognized ");
 
 
                 ini.IniWriteValue("Info Serial", "CONTROLLER", "1"); //
                 ini.IniWriteValue("Info Serial", "OperationMode", "0");
 
-                ini.IniWriteValue("SC-112", "Port info ", "//These are the settings used by Nikon SC-112");
-                ini.IniWriteValue("SC-112", "PORT_NUMBER", "COM1");
-                ini.IniWriteValue("SC-112", "BAUD_RATE", "4800");
-                ini.IniWriteValue("SC-112", "PARITY", "None");
-                ini.IniWriteValue("SC-112", "DATA_BITS", "8");
-                ini.IniWriteValue("SC-112", "STOP_BITS", "2");
+                ini.IniWriteValue("NIKON-SC-112", "Port info ", "//These are the settings used by Nikon NIKON-SC-112");
+                ini.IniWriteValue("NIKON-SC-112", "PORT_NUMBER", "COM1");
+                ini.IniWriteValue("NIKON-SC-112", "BAUD_RATE", "4800");
+                ini.IniWriteValue("NIKON-SC-112", "PARITY", "None");
+                ini.IniWriteValue("NIKON-SC-112", "DATA_BITS", "8");
+                ini.IniWriteValue("NIKON-SC-112", "STOP_BITS", "2");
 
-                ini.IniWriteValue("Olympus-OLYMPUS_STM6", "Port info ", "//These are the settings used by OLYMPUS OLYMPUS_STM6");
-                ini.IniWriteValue("Olympus-OLYMPUS_STM6", "PORT_NUMBER", "COM1");
-                ini.IniWriteValue("Olympus-OLYMPUS_STM6", "BAUD_RATE", "19200");
-                ini.IniWriteValue("Olympus-OLYMPUS_STM6", "PARITY", "None");
-                ini.IniWriteValue("Olympus-OLYMPUS_STM6", "DATA_BITS", "8");
-                ini.IniWriteValue("Olympus-OLYMPUS_STM6", "STOP_BITS", "2");
+                ini.IniWriteValue("Olympus-STM6", "Port info ", "//These are the settings used by OLYMPUS Olympus-STM6");
+                ini.IniWriteValue("Olympus-STM6", "PORT_NUMBER", "COM1");
+                ini.IniWriteValue("Olympus-STM6", "BAUD_RATE", "19200");
+                ini.IniWriteValue("Olympus-STM6", "PARITY", "None");
+                ini.IniWriteValue("Olympus-STM6", "DATA_BITS", "8");
+                ini.IniWriteValue("Olympus-STM6", "STOP_BITS", "2");
 
 
-                ini.IniWriteValue("NEW3", "Port info ", "//These are the settings used by please update information of controller later.");
-                ini.IniWriteValue("NEW3", "PORT_NUMBER", "COM1");
-                ini.IniWriteValue("NEW3", "BAUD_RATE", "19200");
-                ini.IniWriteValue("NEW3", "PARITY", "None");
-                ini.IniWriteValue("NEW3", "DATA_BITS", "8");
-                ini.IniWriteValue("NEW3", "STOP_BITS", "2");
+                ini.IniWriteValue("NIKON-SC-113", "Port info ", "//These are the settings used by Nikon NIKON-SC-113.");
+                ini.IniWriteValue("NIKON-SC-113", "PORT_NUMBER", "COM1");
+                ini.IniWriteValue("NIKON-SC-113", "BAUD_RATE", "4800");
+                ini.IniWriteValue("NIKON-SC-113", "PARITY", "None");
+                ini.IniWriteValue("NIKON-SC-113", "DATA_BITS", "8");
+                ini.IniWriteValue("NIKON-SC-113", "STOP_BITS", "2");
 
 
                 MessageBox.Show("Please make sure you setup COM Port for the first time");
@@ -542,7 +591,7 @@ namespace NIKON2018
             if (Controller_type == 1)
             {
 
-                if (COMport.BytesToRead == 23) //SC-112 sends only 23 bytes
+                if (COMport.BytesToRead == 23) //NIKON-SC-112 sends only 23 bytes
                 {
 
 
@@ -559,7 +608,7 @@ namespace NIKON2018
 
             if (Controller_type == 2) //olympus
             {
-                if (COMport.BytesToRead == 82) //Olympus OLYMPUS_STM6 sends 82 bytes
+                if (COMport.BytesToRead == 82) //Olympus Olympus-STM6 sends 82 bytes
                 {
 
 
@@ -578,7 +627,7 @@ namespace NIKON2018
             if (Controller_type == 3)
             {
 
-                if (COMport.BytesToRead == 23) //SC-112 sends only 23 bytes
+                if (COMport.BytesToRead == 23) //NIKON-SC-112 sends only 23 bytes
                 {
 
 
@@ -810,19 +859,18 @@ namespace NIKON2018
                 {
                     COMport.Close();
                 }
-               
-                //charles 3rd june 18 please check below not sure if needed since we are loading settings from file * might be below is over writing the settings 
-            /*
+         
+
                 COMport.Encoding = Encoding.ASCII;
-           //     COMport.PortName = _Port_Name;
-                COMport.PortName = NIKONSC112._Port_Name; ////not neded testing
-                COMport.BaudRate = NIKONSC112._baud;
-                /// COMport.Parity = Parity.None;
-                COMport.DataBits = NIKONSC112._DataBits;//Port_DataBits;
+               
+                COMport.PortName = Port_Name;
+                COMport.BaudRate = Baud_Rate;
+                
+                COMport.DataBits = Port_DataBits;//Port_DataBits;
                 COMport.StopBits =  StopBits.Two;
                 COMport.DtrEnable = true;
                 COMport.RtsEnable = true;
-               */ 
+              
                 try
                 {
 
@@ -925,7 +973,7 @@ namespace NIKON2018
 
         private void RESET_button_Click(object sender, EventArgs e)
         {
-            Serial_connect2();
+            Serial_connect();
             Create_file();
             REPLY_TO_CONTROLLER();
             position_number = 0;
@@ -974,7 +1022,7 @@ namespace NIKON2018
                 {
 
 
-                    case 1:     //NIKON SC-112
+                    case 1:     //NIKON NIKON-SC-112
 
                         if (COMport.IsOpen == true)
                         {
@@ -991,9 +1039,9 @@ namespace NIKON2018
                         break;
 
 
-                    case 2: //OLYMPUR OLYMPUS_STM6
+                    case 2: //OLYMPUR Olympus-STM6
 
-                        // for controller OLYMPUS_STM6 no need to acknoledge the return we we will not reply 
+                        // for controller Olympus-STM6 no need to acknoledge the return we we will not reply 
 
                         break;
 
@@ -2502,26 +2550,14 @@ namespace NIKON2018
         {
 
 
-            NIKONSC112._baud = 9;
-            OLYMPUS_STM6._baud = 76;
-            NEW3._baud = 765;
 
             
         }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
 
-
-
-
-
-
-
-
-
-
-
-
-
+        }
     }
 
 

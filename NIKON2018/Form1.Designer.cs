@@ -66,7 +66,6 @@
             this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripMenuItem();
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.button2 = new System.Windows.Forms.Button();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -279,7 +278,6 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.Silver;
-            this.panel2.Controls.Add(this.button2);
             this.panel2.Controls.Add(this.label11);
             this.panel2.Controls.Add(this.button1);
             this.panel2.Controls.Add(this.ComboBox_Rows);
@@ -454,16 +452,6 @@
             this.timer2.Interval = 200;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(27, 43);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(116, 54);
-            this.button2.TabIndex = 41;
-            this.button2.Text = "TEST";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click_1);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -481,13 +469,13 @@
             this.Controls.Add(this.Export_button);
             this.Controls.Add(this.RESET_button);
             this.HelpButton = true;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(800, 640);
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(800, 640);
             this.Name = "Form1";
             this.Text = "NIKON2018";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             this.panel3.ResumeLayout(false);
@@ -536,7 +524,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Timer timer2;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
     }
 }
 

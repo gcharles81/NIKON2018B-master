@@ -19,7 +19,7 @@ namespace NIKON2018
             this.labelProductName.Text = AssemblyProduct;
             this.labelVersion.Text = String.Format("Version {0}", AssemblyVersion);
             this.labelCopyright.Text = AssemblyCopyright;
-        
+            
            
         }
 
@@ -106,6 +106,24 @@ namespace NIKON2018
         private void tableLayoutPanel_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        private void okButton_Click(object sender, EventArgs e)
+        {
+          
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+           // Form1.FILE_path_HELP
+         //   webBrowser1.Navigate(Form1.FILE_path_HELP);
+          //  webBrowser1.Navigate(@"c:\NIKON2018 Application.pdf");
+            webBrowser1.Navigate(@"NIKON2018 Application.pdf");
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

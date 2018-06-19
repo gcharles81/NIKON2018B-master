@@ -59,5 +59,15 @@ namespace NIKON2018.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] NIKON2018_Application {
+            get {
+                object obj = ResourceManager.GetObject("NIKON2018_Application", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }
